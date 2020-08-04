@@ -1,10 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import App from "app/components/app/app";
+import Root from "app/components/root/root";
+import configureStore from "app/store/Store";
 
+const store = configureStore();
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(<Root store={store} />, document.getElementById("root") as HTMLElement);
+
+// nice reference for testing, though deprecated?
+// https://github.com/draffauf/react-redux-typescript-demo/tree/master/src/store
 
 // ----------------OLD-APP--------------------
 // eslint-disable-next-line
