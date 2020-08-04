@@ -45,7 +45,6 @@
     "enzyme-adapter-react-16": "^1.15.2",
     "react-addons-test-utils": "^15.6.2",
     "ts-loader": "^8.0.1",
-    "typescript": "^3.9.7",
-    "webpack": "^4.44.1"
+    "typescript": "^3.9.7"
   }
 }
