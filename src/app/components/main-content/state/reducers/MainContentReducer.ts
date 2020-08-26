@@ -7,13 +7,13 @@ import MainContentActions from "../types/MainContentActions.type";
 import MainContentActionTypes from "../types/MainContentActionTypes.enum";
 
 // Business logic
-const initialCharacterState: ICharacterState = {
+const initialContentState: ICharacterState = {
   character: undefined,
   characters: [],
   isFetching: false,
 };
 
-const CharacterReducer: Reducer<ICharacterState, MainContentActions> = (state = initialCharacterState, action) => {
+const MainContentReducer: Reducer<ICharacterState, MainContentActions> = (state = initialContentState, action) => {
   switch (action.type) {
     case MainContentActionTypes.SET_CHARACTER: {
       return {
@@ -51,4 +51,4 @@ const CharacterReducer: Reducer<ICharacterState, MainContentActions> = (state = 
   }
 };
 
-export default CharacterReducer;
+export default MainContentReducer;

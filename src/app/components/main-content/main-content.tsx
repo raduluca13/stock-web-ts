@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import MyInfo from "../my-info";
 import "./main-content.css";
+import MyInfo from "app/shared/components/others/my-info";
 
 interface IMainContentProps {}
 interface IMainContentState {}
