@@ -1,30 +1,25 @@
 import React, { Component, SyntheticEvent } from "react";
-import { StockApiManager } from "../data/services/StocksApiService";
-import {
-  StockDetailData,
-  StockTimeSeriesData,
-} from "../data/models/StockDetails.interface";
-import { StockTimeSeriesMetadata } from "../data/models/StockTimeSeriesMetadata.interface";
-import {
-  StockDetailsKeys,
-  StockDetailType,
-} from "../data/models/StockDetailsKeys.enum";
 import Chart from "../presentation/Chart/Chart";
 import Select from "../presentation/select/Select";
 import "./StockContainer.css";
-import { TimeSeriesType } from "../data/models/TimeSeriesTypes.enum";
-import { IDropdown } from "../data/models/IDropdown.interface";
+import { StockApiManager } from "../data/services/StocksApiService";
 import { AxiosResponse } from "axios";
-import { TimeSeriesStockResponse } from "../data/models/TimeSeriesStockResponse.interface";
+import { IDropdown } from "../data/interfaces/IDropdown.interface";
+import { IStockDetailData } from "../data/interfaces/IStockDetailData.interface";
+import { IStockTimeSeriesMetadata } from "../data/interfaces/IStockTimeSeriesMetadata.interface";
+import { IStockTimeSeriesData } from "../data/interfaces/IStockTimeSeries.interface";
+import { ITimeSeriesStockResponse } from "../data/interfaces/ITimeSeriesStockResponse.interface";
+import { TimeSeriesTypeKey, TimeSeriesTypeValue } from "../data/enum/TimeSeriesTypes.enum";
+import { StockDetailTypeKey } from "../data/enum/StockDetailsKeys.enum";
 
 export interface IStocksContainerProps {
-  stocks: StockDetailData[];
-  metadata: StockTimeSeriesMetadata;
+  stocks: IStockDetailData[];
+  metadata: IStockTimeSeriesMetadata;
 }
 
 export interface IStocksContainerState {
-  stocks: StockDetailData[];
-  metadata: StockTimeSeriesMetadata;
+  stocks: IStockDetailData[];
+  metadata: IStockTimeSeriesMetadata;
   stockApiManager: StockApiManager;
 
   stockDetailSelectLabel: string;
@@ -38,26 +33,28 @@ export interface IStocksContainerState {
 
 export default class StocksContainer extends Component {
   state: IStocksContainerState = {
-    stocks: [] as StockDetailData[],
+    stocks: [] as IStockDetailData[],
     metadata: {
       Information: "",
       Symbol: "",
       LastRefreshed: "",
       TimeZone: "",
-    } as StockTimeSeriesMetadata,
+    } as IStockTimeSeriesMetadata,
     stockApiManager: new StockApiManager(),
+
+    stockDetailSelectLabel: "Stock Detail Type",
     stockDetailTypeSelected: {
-      id: StockDetailType.NONE,
-      value: StockDetailType[StockDetailType.NONE],
-    } as IDropdown,
-    timeSeriesTypeSelected: {
-      id: TimeSeriesType.NONE,
-      value: TimeSeriesType.NONE,
+      id: StockDetailTypeKey.NONE,
+      value: StockDetailTypeKey.NONE,
     } as IDropdown,
     stockDetailTypeOptions: [] as IDropdown[],
-    timeSeriesTypeOptions: [] as IDropdown[],
-    stockDetailSelectLabel: "Stock Detail Type",
+
     timeSeriesSelectLabel: "Time Series Type",
+    timeSeriesTypeSelected: {
+      id: TimeSeriesTypeKey.NONE,
+      value: TimeSeriesTypeValue.NONE,
+    } as IDropdown,
+    timeSeriesTypeOptions: [] as IDropdown[],
   };
 
   public componentDidUpdate() {
@@ -70,24 +67,6 @@ export default class StocksContainer extends Component {
       stockDetailTypeOptions: this.mapToStockDetailTypeDropdown(),
       timeSeriesTypeOptions: this.mapToTimeSeriesTypeDropdown(),
     } as IStocksContainerState);
-
-    this.state.stockApiManager
-      ?.getStockDetails(TimeSeriesType.WEEKLY_TIME_SERIES)
-      .then((val: AxiosResponse) => {
-        if (val.status === 200) {
-          const timeSeriesStockResponse = val.data as TimeSeriesStockResponse;
-          const data: StockTimeSeriesData = this.state.stockApiManager.extractStockDetails(
-            timeSeriesStockResponse
-          );
-
-          this.setState({
-            ...this.state,
-            stocks: data.stockDetails,
-            metadata: data.metadata,
-          });
-        }
-      })
-      .catch((e) => console.error(e));
   }
 
   public render() {
@@ -118,9 +97,7 @@ export default class StocksContainer extends Component {
         </div>
         <Chart
           data={this.state?.stocks}
-          stockDetailType={
-            this.state.stockDetailTypeSelected.value as StockDetailsKeys
-          }
+          stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
         />
       </div>
     );
@@ -129,7 +106,7 @@ export default class StocksContainer extends Component {
   private mapToStockDetailTypeDropdown(): IDropdown[] {
     const dropdownList = [] as IDropdown[];
 
-    Object.entries(StockDetailType).forEach((value) => {
+    Object.entries(StockDetailTypeKey).forEach((value) => {
       dropdownList.push({ id: value[0], value: value[1] });
     });
 
@@ -139,16 +116,33 @@ export default class StocksContainer extends Component {
   private mapToTimeSeriesTypeDropdown(): IDropdown[] {
     const dropdownList = [] as IDropdown[];
 
-    Object.entries(TimeSeriesType).forEach((value) => {
+    Object.entries(TimeSeriesTypeKey).forEach((value) => {
       dropdownList.push({ id: value[0], value: value[1] });
     });
 
     return dropdownList;
   }
 
-  private handleSelectStockDetailType = (
-    event: SyntheticEvent<HTMLSelectElement, Event>
-  ) => {
+  private getStockDetails(timeSeriesType: TimeSeriesTypeKey) {
+    // todo - extract this in use effect
+    this.state.stockApiManager
+      ?.getStockDetails(timeSeriesType)
+      .then((val: AxiosResponse) => {
+        if (val.status === 200) {
+          const timeSeriesStockResponse = val.data as ITimeSeriesStockResponse;
+          const data: IStockTimeSeriesData = this.state.stockApiManager.extractStockDetails(timeSeriesStockResponse);
+
+          this.setState({
+            ...this.state,
+            stocks: data.stockDetails,
+            metadata: data.metadata,
+          });
+        }
+      })
+      .catch((e) => console.error(e));
+  }
+
+  private handleSelectStockDetailType = (event: SyntheticEvent<HTMLSelectElement, Event>) => {
     const selectedOption = event.currentTarget.selectedOptions.item(0)?.value;
 
     this.setState({
@@ -159,9 +153,7 @@ export default class StocksContainer extends Component {
     });
   };
 
-  private handleSelectTimeSeriesType = (
-    event: SyntheticEvent<HTMLSelectElement, Event>
-  ) => {
+  private handleSelectTimeSeriesType = (event: SyntheticEvent<HTMLSelectElement, Event>) => {
     const selectedOption = event.currentTarget.selectedOptions.item(0)?.value;
 
     this.setState({
@@ -170,5 +162,13 @@ export default class StocksContainer extends Component {
         (timeSeriesType: IDropdown) => timeSeriesType.id === selectedOption
       ),
     });
+
+    if (selectedOption === TimeSeriesTypeKey.TIME_SERIES_MONTHLY) {
+      this.getStockDetails(TimeSeriesTypeKey.TIME_SERIES_MONTHLY);
+    }
+
+    if (selectedOption === TimeSeriesTypeKey.TIME_SERIES_WEEKLY) {
+      this.getStockDetails(TimeSeriesTypeKey.TIME_SERIES_WEEKLY);
+    }
   };
 }

@@ -1,51 +1,45 @@
 import axios, { AxiosResponse } from "axios";
-import { TimeSeriesStockResponse } from "../models/TimeSeriesStockResponse.interface";
-import { TimeSeriesType } from "../models/TimeSeriesTypes.enum";
-import {
-  KeyVal,
-  StockDetail,
-  StockDetailData,
-  PairString,
-  StockTimeSeriesData,
-} from "../models/StockDetails.interface";
-import { StockDetailsKeys } from "../models/StockDetailsKeys.enum";
-import { StockTimeSeriesMetadata } from "../models/StockTimeSeriesMetadata.interface";
-import { StockMetadataKeys } from "../models/StockMetadataKeys.enum";
-
-type TimeSeriesFields = { [key in TimeSeriesType]: string };
+import { ITimeSeriesStockResponse } from "../interfaces/ITimeSeriesStockResponse.interface";
+import { IStockDetailData } from "../interfaces/IStockDetailData.interface";
+import { IStockTimeSeriesMetadata } from "../interfaces/IStockTimeSeriesMetadata.interface";
+import { StockMetadataKeys } from "../enum/StockMetadataKeys.enum";
+import { IStockTimeSeriesData } from "../interfaces/IStockTimeSeries.interface";
+import { IPairString } from "../interfaces/IPairString.interface";
+import { IKeyVal } from "../interfaces/IKeyVal.interface";
+import { IStockDetail } from "../interfaces/IStockDetail.interface";
+import { StockDetailTypeValue } from "../enum/StockDetailsKeys.enum";
+import { TimeSeriesTypeKey, TimeSeriesTypeValue } from "../enum/TimeSeriesTypes.enum";
 
 export class StockApiManager {
   apiKey = "MG13GI1XD3DUU9ZL"; // todo - this is insecure here.
 
-  getStockDetails(timeSeriesType: TimeSeriesType): Promise<AxiosResponse> {
-    return axios.get(
-      `https://www.alphavantage.co/query?function=${timeSeriesType}&symbol=IBM&apikey=${this.apiKey}`
-    );
+  getStockDetails(timeSeriesType: TimeSeriesTypeKey): Promise<AxiosResponse> {
+    return axios.get(`https://www.alphavantage.co/query?function=${timeSeriesType}&symbol=IBM&apikey=${this.apiKey}`);
   }
 
-  extractStockDetails(timeSeriesStockResponse: TimeSeriesStockResponse) {
-    let monthlyStockDetails: StockDetailData[];
-    let weeklyStockDetails: StockDetailData[];
-    let mappedMetadata: StockTimeSeriesMetadata;
+  extractStockDetails(timeSeriesStockResponse: ITimeSeriesStockResponse) {
+    let monthlyStockDetails: IStockDetailData[];
+    let weeklyStockDetails: IStockDetailData[];
+    let mappedMetadata: IStockTimeSeriesMetadata;
 
-    let stockTimeSeriesData: StockTimeSeriesData = {
+    let stockTimeSeriesData: IStockTimeSeriesData = {
       stockDetails: [],
-      metadata: ({} as any) as StockTimeSeriesMetadata,
+      metadata: ({} as any) as IStockTimeSeriesMetadata,
     };
 
-    for (const [k, v] of Object.entries(timeSeriesStockResponse)) {
-      if (k === TimeSeriesType.MONTHLY_TIME_SERIES) {
-        monthlyStockDetails = this.extractMonthlyStockDetails(v);
+    for (const [key, value] of Object.entries(timeSeriesStockResponse)) {
+      if (key === TimeSeriesTypeValue.TIME_SERIES_MONTHLY) {
+        monthlyStockDetails = this.mapStockDetailData(value);
         stockTimeSeriesData.stockDetails = monthlyStockDetails;
       }
 
-      if (k === TimeSeriesType.WEEKLY_TIME_SERIES) {
-        weeklyStockDetails = this.extractMonthlyStockDetails(v);
+      if (key === TimeSeriesTypeValue.TIME_SERIES_WEEKLY) {
+        weeklyStockDetails = this.mapStockDetailData(value);
         stockTimeSeriesData.stockDetails = weeklyStockDetails;
       }
 
-      if (k === "Meta Data") {
-        mappedMetadata = this.extractStockMetadata((v as any) as PairString);
+      if (key === "Meta Data") {
+        mappedMetadata = this.extractStockMetadata((value as any) as IPairString);
         stockTimeSeriesData.metadata = mappedMetadata;
       }
     }
@@ -53,8 +47,8 @@ export class StockApiManager {
     return stockTimeSeriesData;
   }
 
-  extractStockMetadata(v: PairString) {
-    const metadata: StockTimeSeriesMetadata = {
+  extractStockMetadata(v: IPairString) {
+    const metadata: IStockTimeSeriesMetadata = {
       Information: "",
       Symbol: "",
       LastRefreshed: "",
@@ -86,19 +80,20 @@ export class StockApiManager {
     return metadata;
   }
 
-  extractMonthlyStockDetails(v: KeyVal): StockDetailData[] {
-    const datas: StockDetailData[] = [];
+  mapStockDetailData(v: IKeyVal): IStockDetailData[] {
+    const datas: IStockDetailData[] = [];
 
+    debugger;
     for (const [date, stockDetails] of Object.entries(v)) {
-      const stockDetail: StockDetail = {
-        open: stockDetails[StockDetailsKeys.OPEN],
-        high: stockDetails[StockDetailsKeys.HIGH],
-        close: stockDetails[StockDetailsKeys.CLOSE],
-        low: stockDetails[StockDetailsKeys.LOW],
-        volume: stockDetails[StockDetailsKeys.VOLUME],
+      const stockDetail: IStockDetail = {
+        open: stockDetails[StockDetailTypeValue.OPEN],
+        high: stockDetails[StockDetailTypeValue.HIGH],
+        close: stockDetails[StockDetailTypeValue.CLOSE],
+        low: stockDetails[StockDetailTypeValue.LOW],
+        volume: stockDetails[StockDetailTypeValue.VOLUME],
       };
 
-      const stockDetailData: StockDetailData = {
+      const stockDetailData: IStockDetailData = {
         date: date,
         stockDetail: stockDetail,
       };
@@ -106,10 +101,14 @@ export class StockApiManager {
       datas.push(stockDetailData);
     }
 
-    return datas.sort((a: StockDetailData, b: StockDetailData) => {
-      if (a.date < b.date) return -1;
+    return datas.sort((firstDetail: IStockDetailData, secondDetail: IStockDetailData) => {
+      if (firstDetail.date < secondDetail.date) {
+        return -1;
+      }
 
-      if (a.date > b.date) return 1;
+      if (firstDetail.date > secondDetail.date) {
+        return 1;
+      }
 
       return 0;
     });

@@ -1,4 +1,4 @@
-export interface StockTimeSeriesMetadata {
+export interface IStockTimeSeriesMetadata {
   Information: string;
   Symbol: string; // TODO - convert to type so user can choose from multiple. default example is IBM
   LastRefreshed: string;
