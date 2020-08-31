@@ -7,6 +7,7 @@ import { AxiosResponse } from "axios";
 import { StockDetailsKeys, StockDetailsKeysDropdown } from "../data/models/StockDetailsKeys.enum";
 import Chart from "../presentation/Chart/Chart";
 import Select from "../presentation/select/Select";
+import "./StockContainer.css";
 
 export interface IStocksContainerProps {
   stocks: StockDetailData[];
@@ -51,11 +52,13 @@ export default class StocksContainer extends Component {
         <p>Last Refreshed: {this.state?.metadata?.LastRefreshed}</p>
         <p>Time Zone: {this.state?.metadata?.TimeZone}</p>
 
-        <Select
-          selectedOption={this.state.selectFormSelectedOption}
-          options={this.mapToDropdown()}
-          handleSelect={this.handleSelect}
-        />
+        <div className="stock-type-dropdown">
+          <Select
+            selectedOption={this.state.selectFormSelectedOption}
+            options={this.mapToDropdown()}
+            handleSelect={this.handleSelect}
+          />
+        </div>
         <Chart data={this.state?.stocks} stockDetailType={this.state.stockDetailType} />
       </div>
     );

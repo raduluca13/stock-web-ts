@@ -55,7 +55,9 @@ export default class Chart extends Component<IChartState, IChartProps> {
                       return [
                         {
                           target: "data",
-                          mutation: () => ({ style: { fill: "gold", width: 1 } }),
+                          mutation: () => ({
+                            style: { fill: "gold", width: 1 },
+                          }),
                         },
                         {
                           target: "labels",
@@ -71,7 +73,10 @@ export default class Chart extends Component<IChartState, IChartProps> {
                         },
                         {
                           target: "labels",
-                          mutation: () => ({ style: { width: 20 }, active: false }),
+                          mutation: () => ({
+                            style: { width: 20 },
+                            active: false,
+                          }),
                         },
                       ];
                     },
@@ -88,7 +93,11 @@ export default class Chart extends Component<IChartState, IChartProps> {
       </div>
     );
   }
-  getFillColor(): string | number | import("victory-core").VictoryStringOrNumberCallback | undefined {
+  getFillColor():
+    | string
+    | number
+    | import("victory-core").VictoryStringOrNumberCallback
+    | undefined {
     switch (this.props.stockDetailType) {
       case StockDetailsKeys.CLOSE: {
         return "tomato";
@@ -137,22 +146,36 @@ export default class Chart extends Component<IChartState, IChartProps> {
   }
 
   // TODO - it can be improved; separate something from here
-  getLabels(): number[] | string[] | ((data: any) => string | number | null) | undefined {
+  getLabels():
+    | number[]
+    | string[]
+    | ((data: any) => string | number | null)
+    | undefined {
     switch (this.props.stockDetailType) {
       case StockDetailsKeys.CLOSE: {
-        return this.props?.data.map((stock) => `${stock.date}: 'close' : ${stock.stockDetail.close} `);
+        return this.props?.data.map(
+          (stock) => `${stock.date}: 'close' : ${stock.stockDetail.close} `
+        );
       }
       case StockDetailsKeys.HIGH: {
-        return this.props?.data.map((stock) => `${stock.date}: 'high' : ${stock.stockDetail.high} `);
+        return this.props?.data.map(
+          (stock) => `${stock.date}: 'high' : ${stock.stockDetail.high} `
+        );
       }
       case StockDetailsKeys.LOW: {
-        return this.props?.data.map((stock) => `${stock.date}: 'low' : ${stock.stockDetail.low} `);
+        return this.props?.data.map(
+          (stock) => `${stock.date}: 'low' : ${stock.stockDetail.low} `
+        );
       }
       case StockDetailsKeys.OPEN: {
-        return this.props?.data.map((stock) => `${stock.date}: 'open' : ${stock.stockDetail.open} `);
+        return this.props?.data.map(
+          (stock) => `${stock.date}: 'open' : ${stock.stockDetail.open} `
+        );
       }
       case StockDetailsKeys.VOLUME: {
-        return this.props?.data.map((stock) => `${stock.date}: 'volume' : ${stock.stockDetail.volume} `);
+        return this.props?.data.map(
+          (stock) => `${stock.date}: 'volume' : ${stock.stockDetail.volume} `
+        );
       }
       case StockDetailsKeys.NONE:
       default: {

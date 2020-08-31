@@ -33,7 +33,7 @@ export default class Select extends Component<ISelectProps, ISelectState> {
   render() {
     return (
       <form>
-        <label>Name:</label>
+        <label>Stock Type:</label>
         <select value={this.props?.selectedOption.value} onChange={this.props.handleSelect}>
           {this.props?.options?.map((option, key) => (
             <option key={key} value={option.value}>

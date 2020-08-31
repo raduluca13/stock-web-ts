@@ -6,6 +6,6 @@ interface IHeaderState {}
 
 export default class Header extends Component<IHeaderProps, IHeaderState> {
   public render() {
-    return <header className="header">myHeader</header>;
+    return <header className="header">Stocks Web TS</header>;
   }
 }
