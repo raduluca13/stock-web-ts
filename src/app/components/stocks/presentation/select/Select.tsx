@@ -1,42 +1,46 @@
 import React, { Component, SyntheticEvent } from "react";
-import { IStockDetailsKeysDropdown } from "../../container/StocksContainer";
-import { StockDetailsKeysDropdown } from "../../data/models/StockDetailsKeys.enum";
+import { IDropdown } from "../../data/models/IDropdown.interface";
 
 export interface ISelectProps {
-  options: IStockDetailsKeysDropdown[];
-  selectedOption: IStockDetailsKeysDropdown;
+  label: string;
+  options: IDropdown[];
+  selectedOption: IDropdown;
   handleSelect: (event: SyntheticEvent<HTMLSelectElement, Event>) => void;
 }
 
 export interface ISelectState {
-  selectedOption: IStockDetailsKeysDropdown;
+  selectedOption: IDropdown;
 }
 
 export default class Select extends Component<ISelectProps, ISelectState> {
   constructor(props: Readonly<ISelectProps>) {
     super(props);
-    this.state = {
-      selectedOption: {
-        id: StockDetailsKeysDropdown.NONE,
-        value: StockDetailsKeysDropdown[StockDetailsKeysDropdown.NONE],
-      } as IStockDetailsKeysDropdown,
-    };
+
+    // this.setState({
+    //   ...this.state,
+    //   selectedOption:
+    //     this.props.selectedOption ||
+    //     ({
+    //       id: "",
+    //       value: "",
+    //     } as IDropdown),
+    // });
 
     this.handleSelect = this.props.handleSelect.bind(this);
   }
 
-  handleSelect(event: SyntheticEvent<HTMLSelectElement, Event>) {
-    console.log(event.currentTarget.value);
-    this.setState({ selectedOption: { ...this.state.selectedOption, value: event.currentTarget.value } });
-  }
+  handleSelect: (event: SyntheticEvent<HTMLSelectElement, Event>) => void;
 
   render() {
     return (
       <form>
-        <label>Stock Type:</label>
-        <select value={this.props?.selectedOption.value} onChange={this.props.handleSelect}>
+        <label>{this.props.label}</label>
+        <select
+          value={this.props?.selectedOption?.id}
+          onChange={this.props.handleSelect}
+        >
           {this.props?.options?.map((option, key) => (
-            <option key={key} value={option.value}>
+            <option key={key} value={option.id}>
               {option.value}
             </option>
           ))}

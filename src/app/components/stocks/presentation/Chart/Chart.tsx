@@ -18,12 +18,10 @@ export interface IChartProps {
 }
 
 export default class Chart extends Component<IChartState, IChartProps> {
-  public componentDidUpdate() {
-    console.log(" did update Chart", this.state, this.props);
-  }
+  public componentDidMount() {}
+  public componentDidUpdate() {}
 
   public render() {
-    console.log(this.state);
     return (
       <div className="chart">
         {this.props.stockDetailType !== StockDetailsKeys.NONE && (
@@ -93,6 +91,8 @@ export default class Chart extends Component<IChartState, IChartProps> {
       </div>
     );
   }
+
+  // todo - enum for colors
   getFillColor():
     | string
     | number

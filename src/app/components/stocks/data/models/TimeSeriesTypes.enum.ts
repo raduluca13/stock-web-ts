@@ -1,4 +1,5 @@
 export enum TimeSeriesType {
-  MONTHLY_TIME_SERIES = "Monthly Time Series",
-  WEEKLY_TIME_SERIES = "Weekly Time Series",
+  NONE = "NONE",
+  MONTHLY_TIME_SERIES = "TIME_SERIES_MONTHLY",
+  WEEKLY_TIME_SERIES = "TIME_SERIES_WEEKLY",
 }

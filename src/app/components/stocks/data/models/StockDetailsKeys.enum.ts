@@ -7,7 +7,7 @@ export enum StockDetailsKeys {
   VOLUME = "5. volume",
 }
 
-export enum StockDetailsKeysDropdown {
+export enum StockDetailType {
   NONE = "NONE",
   OPEN = "OPEN",
   HIGH = "HIGH",

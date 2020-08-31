@@ -15,15 +15,17 @@ import { StockMetadataKeys } from "../models/StockMetadataKeys.enum";
 type TimeSeriesFields = { [key in TimeSeriesType]: string };
 
 export class StockApiManager {
-  getStockDetails(): Promise<AxiosResponse> {
+  apiKey = "MG13GI1XD3DUU9ZL"; // todo - this is insecure here.
+
+  getStockDetails(timeSeriesType: TimeSeriesType): Promise<AxiosResponse> {
     return axios.get(
-      "https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=IBM&apikey=demo"
+      `https://www.alphavantage.co/query?function=${timeSeriesType}&symbol=IBM&apikey=${this.apiKey}`
     );
   }
 
   extractStockDetails(timeSeriesStockResponse: TimeSeriesStockResponse) {
     let monthlyStockDetails: StockDetailData[];
-    // let weeklyStockDetails: StockDetailData[]
+    let weeklyStockDetails: StockDetailData[];
     let mappedMetadata: StockTimeSeriesMetadata;
 
     let stockTimeSeriesData: StockTimeSeriesData = {
@@ -38,7 +40,8 @@ export class StockApiManager {
       }
 
       if (k === TimeSeriesType.WEEKLY_TIME_SERIES) {
-        debugger;
+        weeklyStockDetails = this.extractMonthlyStockDetails(v);
+        stockTimeSeriesData.stockDetails = weeklyStockDetails;
       }
 
       if (k === "Meta Data") {
