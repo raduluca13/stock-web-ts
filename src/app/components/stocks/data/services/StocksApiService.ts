@@ -1,4 +1,3 @@
-import { Observable, from } from "rxjs";
 import axios, { AxiosResponse } from "axios";
 import { TimeSeriesStockResponse } from "../models/TimeSeriesStockResponse.interface";
 import { TimeSeriesType } from "../models/TimeSeriesTypes.enum";
@@ -15,13 +14,11 @@ import { StockMetadataKeys } from "../models/StockMetadataKeys.enum";
 
 type TimeSeriesFields = { [key in TimeSeriesType]: string };
 
-export function getStockDetails$(): Observable<AxiosResponse> {
-  return from(axios.get("https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=IBM&apikey=demo"));
-}
-
 export class StockApiManager {
   getStockDetails(): Promise<AxiosResponse> {
-    return axios.get("https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=IBM&apikey=demo");
+    return axios.get(
+      "https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=IBM&apikey=demo"
+    );
   }
 
   extractStockDetails(timeSeriesStockResponse: TimeSeriesStockResponse) {
