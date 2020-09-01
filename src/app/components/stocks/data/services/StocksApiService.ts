@@ -83,7 +83,6 @@ export class StockApiManager {
   mapStockDetailData(v: IKeyVal): IStockDetailData[] {
     const datas: IStockDetailData[] = [];
 
-    debugger;
     for (const [date, stockDetails] of Object.entries(v)) {
       const stockDetail: IStockDetail = {
         open: stockDetails[StockDetailTypeValue.OPEN],

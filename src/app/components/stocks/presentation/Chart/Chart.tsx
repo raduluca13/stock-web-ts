@@ -47,19 +47,29 @@ export default function Chart(props: IChartProps) {
   const getLabels = function () {
     switch (props.stockDetailType) {
       case StockDetailTypeKey.CLOSE: {
-        return props?.data.map((stock) => `${stock.date} (close) : ${stock.stockDetail.close} `);
+        return props?.data.map(
+          (stock) => `${stock.date} (close) : ${stock.stockDetail.close} `
+        );
       }
       case StockDetailTypeKey.HIGH: {
-        return props?.data.map((stock) => `${stock.date} (high) : ${stock.stockDetail.high} `);
+        return props?.data.map(
+          (stock) => `${stock.date} (high) : ${stock.stockDetail.high} `
+        );
       }
       case StockDetailTypeKey.LOW: {
-        return props?.data.map((stock) => `${stock.date} (low) : ${stock.stockDetail.low} `);
+        return props?.data.map(
+          (stock) => `${stock.date} (low) : ${stock.stockDetail.low} `
+        );
       }
       case StockDetailTypeKey.OPEN: {
-        return props?.data.map((stock) => `${stock.date} (open) : ${stock.stockDetail.open} `);
+        return props?.data.map(
+          (stock) => `${stock.date} (open) : ${stock.stockDetail.open} `
+        );
       }
       case StockDetailTypeKey.VOLUME: {
-        return props?.data.map((stock) => `${stock.date} (volume) : ${stock.stockDetail.volume} `);
+        return props?.data.map(
+          (stock) => `${stock.date} (volume) : ${stock.stockDetail.volume} `
+        );
       }
       case StockDetailTypeKey.NONE:
       default: {

@@ -1,0 +1,17 @@
+.select-container {
+  width: 26rem;
+
+  display: flex;
+  align-items: center;
+
+  font-size: 0.875rem;
+}
+
+.select-container__select {
+  height: 2rem;
+  width: 15rem;
+}
+
+.select-container__label {
+  width: 10rem;
+}

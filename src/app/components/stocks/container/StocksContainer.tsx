@@ -1,6 +1,5 @@
-import React, { Component, SyntheticEvent } from "react";
+import React, { Component, ChangeEvent } from "react";
 import Chart from "../presentation/Chart/Chart";
-import Select from "../presentation/select/Select";
 import "./StockContainer.css";
 import { StockApiManager } from "../data/services/StocksApiService";
 import { AxiosResponse } from "axios";
@@ -9,8 +8,13 @@ import { IStockDetailData } from "../data/interfaces/IStockDetailData.interface"
 import { IStockTimeSeriesMetadata } from "../data/interfaces/IStockTimeSeriesMetadata.interface";
 import { IStockTimeSeriesData } from "../data/interfaces/IStockTimeSeries.interface";
 import { ITimeSeriesStockResponse } from "../data/interfaces/ITimeSeriesStockResponse.interface";
-import { TimeSeriesTypeKey, TimeSeriesTypeValue } from "../data/enum/TimeSeriesTypes.enum";
+import { TimeSeriesTypeKey } from "../data/enum/TimeSeriesTypes.enum";
 import { StockDetailTypeKey } from "../data/enum/StockDetailsKeys.enum";
+
+import CustomSelect from "../presentation/select/CustomSelect";
+import Loader from "react-loader-spinner";
+import { Snackbar } from "@material-ui/core";
+// import Alert from '@material-ui/lab/Alert';
 
 export interface IStocksContainerProps {
   stocks: IStockDetailData[];
@@ -29,6 +33,9 @@ export interface IStocksContainerState {
   timeSeriesSelectLabel: string;
   timeSeriesTypeSelected: IDropdown;
   timeSeriesTypeOptions: IDropdown[];
+  isLoading: boolean;
+  errorMessage?: string;
+  onCloseSnackbar: () => void;
 }
 
 export default class StocksContainer extends Component {
@@ -41,63 +48,87 @@ export default class StocksContainer extends Component {
       TimeZone: "",
     } as IStockTimeSeriesMetadata,
     stockApiManager: new StockApiManager(),
-
     stockDetailSelectLabel: "Stock Detail Type",
     stockDetailTypeSelected: {
-      id: StockDetailTypeKey.NONE,
-      value: StockDetailTypeKey.NONE,
+      id: "",
+      value: "",
     } as IDropdown,
-    stockDetailTypeOptions: [] as IDropdown[],
-
+    stockDetailTypeOptions: this.mapToStockDetailTypeDropdown() as IDropdown[],
     timeSeriesSelectLabel: "Time Series Type",
     timeSeriesTypeSelected: {
-      id: TimeSeriesTypeKey.NONE,
-      value: TimeSeriesTypeValue.NONE,
+      id: "",
+      value: "",
     } as IDropdown,
-    timeSeriesTypeOptions: [] as IDropdown[],
+    timeSeriesTypeOptions: this.mapToTimeSeriesTypeDropdown() as IDropdown[],
+    isLoading: false,
+    errorMessage: undefined,
+    onCloseSnackbar: () => {
+      this.setState({ ...this.state, errorMessage: undefined });
+    },
   };
 
   public componentDidUpdate() {
     console.log("updated", this.state);
   }
 
-  public componentDidMount() {
-    this.setState({
-      ...this.state,
-      stockDetailTypeOptions: this.mapToStockDetailTypeDropdown(),
-      timeSeriesTypeOptions: this.mapToTimeSeriesTypeDropdown(),
-    } as IStocksContainerState);
-  }
-
   public render() {
     return (
-      <div>
-        <h1>Stocks</h1>
-        <p>Information: {this.state?.metadata?.Information}</p>
-        <p>Symbol: {this.state?.metadata?.Symbol}</p>
-        <p>Last Refreshed: {this.state?.metadata?.LastRefreshed}</p>
-        <p>Time Zone: {this.state?.metadata?.TimeZone}</p>
+      <div className="stock-container">
+        {this.state.stocks.length > 0 && (
+          <div className="stock-container__description">
+            <h1>Stocks</h1>
+            <p>Information: {this.state?.metadata?.Information}</p>
+            <p>Symbol: {this.state?.metadata?.Symbol}</p>
+            <p>Last Refreshed: {this.state?.metadata?.LastRefreshed}</p>
+            <p>Time Zone: {this.state?.metadata?.TimeZone}</p>
+          </div>
+        )}
 
-        <div className="time-series-type-dropdown">
-          <Select
+        <div className="stock-container__loader">
+          <Loader
+            type="Grid"
+            visible={this.state.isLoading}
+            color="#00BFFF"
+            height={50}
+            width={50}
+          />
+        </div>
+
+        <div className="stock-container__snackbar">
+          <Snackbar
+            open={this.state.errorMessage !== undefined}
+            autoHideDuration={6000}
+            onClose={this.state.onCloseSnackbar}
+          >
+            <p>{this.state.errorMessage}</p>
+          </Snackbar>
+        </div>
+
+        <div className="stock-container__dropdown-list">
+          <CustomSelect
             selectedOption={this.state.timeSeriesTypeSelected}
             label={this.state.timeSeriesSelectLabel}
             options={this.state.timeSeriesTypeOptions}
             handleSelect={this.handleSelectTimeSeriesType}
           />
-        </div>
-
-        <div className="stock-type-dropdown">
-          <Select
+          <CustomSelect
             selectedOption={this.state.stockDetailTypeSelected}
             label={this.state.stockDetailSelectLabel}
             options={this.state.stockDetailTypeOptions}
             handleSelect={this.handleSelectStockDetailType}
           />
         </div>
+        {/* <div className="stock-container__dropdown__time-series-type">
+          </div>
+
+        <div className="stock-container__dropdown__stock-detail-type">
+        </div> */}
+
         <Chart
           data={this.state?.stocks}
-          stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
+          stockDetailType={
+            this.state.stockDetailTypeSelected.id as StockDetailTypeKey
+          }
         />
       </div>
     );
@@ -124,51 +155,78 @@ export default class StocksContainer extends Component {
   }
 
   private getStockDetails(timeSeriesType: TimeSeriesTypeKey) {
-    // todo - extract this in use effect
-    this.state.stockApiManager
-      ?.getStockDetails(timeSeriesType)
-      .then((val: AxiosResponse) => {
-        if (val.status === 200) {
-          const timeSeriesStockResponse = val.data as ITimeSeriesStockResponse;
-          const data: IStockTimeSeriesData = this.state.stockApiManager.extractStockDetails(timeSeriesStockResponse);
+    this.setState({ ...this.state, isLoading: true }, () => {
+      this.state.stockApiManager
+        ?.getStockDetails(timeSeriesType)
+        .then((val: AxiosResponse) => {
+          if (val.status === 200) {
+            const timeSeriesStockResponse = val.data as ITimeSeriesStockResponse;
+            const data: IStockTimeSeriesData = this.state.stockApiManager.extractStockDetails(
+              timeSeriesStockResponse
+            );
 
+            this.setState({
+              ...this.state,
+              stocks: data.stockDetails,
+              metadata: data.metadata,
+              isLoading: false,
+            });
+          }
+        })
+        .catch((error) => {
           this.setState({
             ...this.state,
-            stocks: data.stockDetails,
-            metadata: data.metadata,
+            errorMessage: error,
+            isLoading: false,
           });
-        }
-      })
-      .catch((e) => console.error(e));
+        });
+    });
   }
 
-  private handleSelectStockDetailType = (event: SyntheticEvent<HTMLSelectElement, Event>) => {
-    const selectedOption = event.currentTarget.selectedOptions.item(0)?.value;
+  private handleSelectStockDetailType = (
+    event: ChangeEvent<{ name?: string | undefined; value: unknown }>,
+    node: React.ReactNode
+  ) => {
+    const selectedOption = event.target.value;
+    const newTypeSelected = this.state.stockDetailTypeOptions.find(
+      (stockDetailType: IDropdown) => stockDetailType.id === selectedOption
+    );
 
     this.setState({
       ...this.state,
-      stockDetailTypeSelected: this.state.stockDetailTypeOptions.find(
-        (stockDetailType: IDropdown) => stockDetailType.id === selectedOption
-      ),
+      stockDetailTypeSelected: newTypeSelected,
     });
   };
 
-  private handleSelectTimeSeriesType = (event: SyntheticEvent<HTMLSelectElement, Event>) => {
-    const selectedOption = event.currentTarget.selectedOptions.item(0)?.value;
+  private handleSelectTimeSeriesType = (
+    event: ChangeEvent<{ name?: string | undefined; value: unknown }>,
+    node: React.ReactNode
+  ) => {
+    const selectedOption = event.target.value;
+    const newTypeSelected = this.state.timeSeriesTypeOptions.find(
+      (timeSeriesType: IDropdown) => timeSeriesType.id === selectedOption
+    );
 
-    this.setState({
-      ...this.state,
-      timeSeriesTypeSelected: this.state.timeSeriesTypeOptions.find(
-        (timeSeriesType: IDropdown) => timeSeriesType.id === selectedOption
-      ),
-    });
+    this.setState(
+      {
+        ...this.state,
+        timeSeriesTypeSelected: newTypeSelected,
+      },
+      () => {
+        this.updateStockDetail(selectedOption);
+      }
+    );
+  };
 
+  updateStockDetail(selectedOption: unknown) {
     if (selectedOption === TimeSeriesTypeKey.TIME_SERIES_MONTHLY) {
       this.getStockDetails(TimeSeriesTypeKey.TIME_SERIES_MONTHLY);
+      return;
     }
 
     if (selectedOption === TimeSeriesTypeKey.TIME_SERIES_WEEKLY) {
       this.getStockDetails(TimeSeriesTypeKey.TIME_SERIES_WEEKLY);
+      return;
     }
-  };
+  }
 }
