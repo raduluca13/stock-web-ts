@@ -5,10 +5,6 @@ import { StockDetailTypeKey } from "../../data/enum/StockDetailsKeys.enum";
 import { VictoryChart } from "victory-chart";
 import { VictoryTheme } from "victory-core";
 import { VictoryTooltip, VictoryBar } from "victory";
-// export interface IChartState {
-//   data: StockDetailData[];
-//   stockDetailType: StockDetailsKeys;
-// }
 
 export interface IChartProps {
   data: IStockDetailData[];
@@ -76,6 +72,24 @@ export default function Chart(props: IChartProps) {
     }
   };
 
+  const updateChartDomain: () => [number, number] | [Date, Date] = function () {
+    switch (props.stockDetailType) {
+      case StockDetailTypeKey.CLOSE:
+      case StockDetailTypeKey.HIGH:
+      case StockDetailTypeKey.LOW:
+      case StockDetailTypeKey.OPEN:
+      case StockDetailTypeKey.VOLUME: {
+        const array = props?.data.map((stock) => new Date(stock.date));
+        console.log({ array });
+        return [array[0], array[1]];
+      }
+      case StockDetailTypeKey.NONE:
+      default: {
+        return [0, 0];
+      }
+    }
+  };
+
   const updateChartData = function () {
     switch (props.stockDetailType) {
       case StockDetailTypeKey.CLOSE: {
@@ -103,10 +117,12 @@ export default function Chart(props: IChartProps) {
   return (
     <div className="chart">
       <VictoryChart
-        theme={VictoryTheme.grayscale}
-        domain={{
-          x: [0, 249],
-        }}
+        theme={VictoryTheme.material}
+        // domain={{
+        //   x: updateChartDomain(),
+        // }}
+        // scale={{ x: "linear", y: "linear" }}
+        // domainPadding={{ x: [100, 100], y: [50, 50] }}
       >
         <VictoryBar
           labelComponent={
@@ -161,10 +177,10 @@ export default function Chart(props: IChartProps) {
           style={{
             data: { fill: getFillColor(), width: 1 },
             labels: {
-              // fontFamily: "MV Boli",
               fontSize: 5,
               fill: "blue",
             },
+            parent: {},
           }}
         />
       </VictoryChart>

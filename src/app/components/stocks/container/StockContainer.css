@@ -7,7 +7,7 @@
 
 .stock-container__loader {
   width: 50px; /* keep it the same as the JSX property of the Loader so it can center with 0 auto */
-  margin: 0 auto;
+  margin: 1rem auto;
 }
 
 .stock-container__dropdown-list {
