@@ -34,6 +34,7 @@ export interface IStocksContainerState {
   timeSeriesTypeSelected: IDropdown;
   timeSeriesTypeOptions: IDropdown[];
   isLoading: boolean;
+  showChart: boolean;
   errorMessage?: string;
   onCloseSnackbar: () => void;
 }
@@ -61,6 +62,7 @@ export default class StocksContainer extends Component {
     } as IDropdown,
     timeSeriesTypeOptions: this.mapToTimeSeriesTypeDropdown() as IDropdown[],
     isLoading: false,
+    showChart: false,
     errorMessage: undefined,
     onCloseSnackbar: () => {
       this.setState({ ...this.state, errorMessage: undefined });
@@ -124,12 +126,14 @@ export default class StocksContainer extends Component {
         <div className="stock-container__dropdown__stock-detail-type">
         </div> */}
 
-        <Chart
-          data={this.state?.stocks}
-          stockDetailType={
-            this.state.stockDetailTypeSelected.id as StockDetailTypeKey
-          }
-        />
+        {this.state.showChart && (
+          <Chart
+            data={this.state?.stocks}
+            stockDetailType={
+              this.state.stockDetailTypeSelected.id as StockDetailTypeKey
+            }
+          />
+        )}
       </div>
     );
   }
@@ -192,9 +196,15 @@ export default class StocksContainer extends Component {
       (stockDetailType: IDropdown) => stockDetailType.id === selectedOption
     );
 
+    const showChart =
+      this.state.timeSeriesTypeSelected.id !== "" &&
+      this.state.timeSeriesTypeSelected.id !== "NONE" &&
+      selectedOption !== "NONE";
+
     this.setState({
       ...this.state,
       stockDetailTypeSelected: newTypeSelected,
+      showChart: showChart,
     });
   };
 

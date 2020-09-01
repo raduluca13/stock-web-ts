@@ -104,74 +104,72 @@ export default function Chart(props: IChartProps) {
 
   return (
     <div className="chart">
-      {props.stockDetailType !== StockDetailTypeKey.NONE && (
-        <VictoryChart
-          theme={VictoryTheme.grayscale}
-          domain={{
-            x: [0, 249],
-          }}
-        >
-          <VictoryBar
-            labelComponent={
-              <VictoryTooltip
-                cornerRadius={({ datum }) => (datum.x > 6 ? 20 : 0)}
-                pointerLength={({ datum }) => (datum.y > 0 ? 20 : 5)}
-                flyoutStyle={{
-                  stroke: ({ datum }) => {
-                    return datum.x > 100 ? "tomato" : "black";
-                  },
-                }}
-              />
-            }
-            labels={getLabels()}
-            data={updateChartData()}
-            events={[
-              {
-                target: "data",
-                eventHandlers: {
-                  onMouseOver: () => {
-                    return [
-                      {
-                        target: "data",
-                        mutation: () => ({
-                          style: { fill: "gold", width: 1 },
-                        }),
-                      },
-                      {
-                        target: "labels",
-                        mutation: () => ({ active: true }),
-                      },
-                    ];
-                  },
-                  onMouseOut: () => {
-                    return [
-                      {
-                        target: "data",
-                        mutation: () => {},
-                      },
-                      {
-                        target: "labels",
-                        mutation: () => ({
-                          style: { width: 20 },
-                          active: false,
-                        }),
-                      },
-                    ];
-                  },
+      <VictoryChart
+        theme={VictoryTheme.grayscale}
+        domain={{
+          x: [0, 249],
+        }}
+      >
+        <VictoryBar
+          labelComponent={
+            <VictoryTooltip
+              cornerRadius={({ datum }) => (datum.x > 6 ? 20 : 0)}
+              pointerLength={({ datum }) => (datum.y > 0 ? 20 : 5)}
+              flyoutStyle={{
+                stroke: ({ datum }) => {
+                  return datum.x > 100 ? "tomato" : "black";
+                },
+              }}
+            />
+          }
+          labels={getLabels()}
+          data={updateChartData()}
+          events={[
+            {
+              target: "data",
+              eventHandlers: {
+                onMouseOver: () => {
+                  return [
+                    {
+                      target: "data",
+                      mutation: () => ({
+                        style: { fill: "gold", width: 1 },
+                      }),
+                    },
+                    {
+                      target: "labels",
+                      mutation: () => ({ active: true }),
+                    },
+                  ];
+                },
+                onMouseOut: () => {
+                  return [
+                    {
+                      target: "data",
+                      mutation: () => {},
+                    },
+                    {
+                      target: "labels",
+                      mutation: () => ({
+                        style: { width: 20 },
+                        active: false,
+                      }),
+                    },
+                  ];
                 },
               },
-            ]}
-            style={{
-              data: { fill: getFillColor(), width: 1 },
-              labels: {
-                // fontFamily: "MV Boli",
-                fontSize: 5,
-                fill: "blue",
-              },
-            }}
-          />
-        </VictoryChart>
-      )}
+            },
+          ]}
+          style={{
+            data: { fill: getFillColor(), width: 1 },
+            labels: {
+              // fontFamily: "MV Boli",
+              fontSize: 5,
+              fill: "blue",
+            },
+          }}
+        />
+      </VictoryChart>
     </div>
   );
 }
