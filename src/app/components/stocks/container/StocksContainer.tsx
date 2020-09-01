@@ -1,5 +1,4 @@
 import React, { Component, ChangeEvent } from "react";
-import Chart from "../presentation/chart/Chart";
 import "./StockContainer.css";
 import { StockApiManager } from "../data/services/StocksApiService";
 import { AxiosResponse } from "axios";
@@ -14,6 +13,7 @@ import { StockDetailTypeKey } from "../data/enum/StockDetailsKeys.enum";
 import Loader from "react-loader-spinner";
 import { Snackbar } from "@material-ui/core";
 import CustomSelect from "../presentation/custom-select/CustomSelect";
+import Chart from "../presentation/chart/Chart";
 // import Alert from '@material-ui/lab/Alert';
 
 export interface IStocksContainerProps {
