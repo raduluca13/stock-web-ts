@@ -1,5 +1,5 @@
 import React, { Component, ChangeEvent } from "react";
-import Chart from "../presentation/Chart/Chart";
+import Chart from "../presentation/chart/Chart";
 import "./StockContainer.css";
 import { StockApiManager } from "../data/services/StocksApiService";
 import { AxiosResponse } from "axios";
@@ -11,9 +11,9 @@ import { ITimeSeriesStockResponse } from "../data/interfaces/ITimeSeriesStockRes
 import { TimeSeriesTypeKey } from "../data/enum/TimeSeriesTypes.enum";
 import { StockDetailTypeKey } from "../data/enum/StockDetailsKeys.enum";
 
-import CustomSelect from "../presentation/select/CustomSelect";
 import Loader from "react-loader-spinner";
 import { Snackbar } from "@material-ui/core";
+import CustomSelect from "../presentation/custom-select/CustomSelect";
 // import Alert from '@material-ui/lab/Alert';
 
 export interface IStocksContainerProps {
@@ -228,7 +228,7 @@ export default class StocksContainer extends Component {
     );
   };
 
-  updateStockDetail(selectedOption: unknown) {
+  private updateStockDetail(selectedOption: unknown) {
     if (selectedOption === TimeSeriesTypeKey.TIME_SERIES_MONTHLY) {
       this.getStockDetails(TimeSeriesTypeKey.TIME_SERIES_MONTHLY);
       return;

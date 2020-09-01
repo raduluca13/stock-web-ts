@@ -5,7 +5,6 @@ import "./CustomSelect.css";
 import { makeStyles } from "@material-ui/core/styles";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 
@@ -31,18 +30,6 @@ export interface ISelectProps {
 
 export default function CustomSelect(props: ISelectProps) {
   const classes = useStyles();
-  // const [age, setOption] = React.useState(props.selectedOption);
-
-  // const handleSelect = (
-  //   event: ChangeEvent<{ name?: string | undefined; value: unknown }>,
-  //   node: React.ReactNode
-  // ) => {
-  //   const option: IDropdown = props.options.find(
-  //     (option: IDropdown) => option.id === event.target.value
-  //   ) ?? { id: "NONE", value: "NONE" };
-
-  //   setOption(option);
-  // };
 
   return (
     <div>

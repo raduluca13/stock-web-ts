@@ -1,12 +1,10 @@
 import React from "react";
-import "./chart.css";
-
+import "./Chart.css";
+import { IStockDetailData } from "../../data/interfaces/IStockDetailData.interface";
+import { StockDetailTypeKey } from "../../data/enum/StockDetailsKeys.enum";
 import { VictoryChart } from "victory-chart";
 import { VictoryTheme } from "victory-core";
 import { VictoryTooltip, VictoryBar } from "victory";
-import { IStockDetailData } from "../../data/interfaces/IStockDetailData.interface";
-import { StockDetailTypeKey } from "../../data/enum/StockDetailsKeys.enum";
-
 // export interface IChartState {
 //   data: StockDetailData[];
 //   stockDetailType: StockDetailsKeys;
