@@ -1,24 +1,24 @@
 import React, { Component, ChangeEvent } from "react";
 import "./StockContainer.css";
-import { StockApiManager } from "../data/services/StocksApiService";
 import { AxiosResponse } from "axios";
+import { Snackbar } from "@material-ui/core";
+import Loader from "react-loader-spinner";
+
 import { IDropdown } from "../data/interfaces/IDropdown.interface";
 import { IStockDetailData } from "../data/interfaces/IStockDetailData.interface";
 import { IStockTimeSeriesMetadata } from "../data/interfaces/IStockTimeSeriesMetadata.interface";
 import { IStockTimeSeriesData } from "../data/interfaces/IStockTimeSeries.interface";
 import { ITimeSeriesStockResponse } from "../data/interfaces/ITimeSeriesStockResponse.interface";
+import { IAlphaVantageSymbolSearchResponse } from "../data/interfaces/IAlphaVantageSymbolSearchResponse.interface";
 import { TimeSeriesTypeKey } from "../data/enum/TimeSeriesTypes.enum";
 import { StockDetailTypeKey } from "../data/enum/StockDetailsKeys.enum";
 
-import CustomSelect from "../presentation/custom-select/CustomSelect";
-import { Snackbar } from "@material-ui/core";
-import Loader from "react-loader-spinner";
-import Chart from "../presentation/chart/Chart";
-import SearchInput from "../presentation/search-input/SearchInput";
-import { IAlphaVantageSymbolSearchResponse } from "../data/interfaces/IAlphaVantageSymbolSearchResponse.interface";
+import { StockApiManager } from "../data/services/StocksApiService";
 import { DropdownMapperService } from "../data/services/DropdownMapperService";
+import CustomSelect from "../presentation/custom-select/CustomSelect";
+import SearchInput from "../presentation/search-input/SearchInput";
 import DatePicker from "../presentation/date-picker/DatePicker";
-// import Alert from '@material-ui/lab/Alert';
+import Chart from "../presentation/chart/Chart";
 
 export interface IStocksContainerProps {
   stocks: IStockDetailData[];
