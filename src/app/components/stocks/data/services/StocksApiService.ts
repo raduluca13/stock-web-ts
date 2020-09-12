@@ -17,11 +17,16 @@ import { ITimeFrame } from "../interfaces/ITimeFrame.interface";
 export class StockApiManager {
   // private readonly apiKey = "MG13GI1XD3DUU9ZL"; // todo - this is insecure here.
   private readonly apiKey = "H6AIT30OD8F8OLZD"; // another key, just because alpha vantage has limits of 500 cals/day..
+  private stocks: IStockTimeSeriesData = ({} as any) as IStockTimeSeriesData;
 
   getStockDetails(symbol: string, timeSeriesType: TimeSeriesTypeKey): Promise<AxiosResponse> {
     return axios.get(
       `https://www.alphavantage.co/query?function=${timeSeriesType}&symbol=${symbol}&apikey=${this.apiKey}`
     );
+  }
+
+  filterStocksOnDate(timeFrame: ITimeFrame): IStockDetailData[] {
+    return this.stocks.stockDetails.filter((stock: IStockDetailData) => this.isInTimeFrame(stock.date, timeFrame));
   }
 
   searchSymbol(searchedSymbol: string) {
@@ -139,7 +144,12 @@ export class StockApiManager {
       }
     }
 
-    return stockTimeSeriesData;
+    // keep stocks before filtering so we can re-filter easily without an API call after dates are changed
+    this.stocks = stockTimeSeriesData;
+
+    const filteredStocks: IStockDetailData[] = this.filterStocksOnDate(timeFrame);
+    
+    return { metadata: stockTimeSeriesData.metadata, stockDetails: filteredStocks };
   }
 
   // TODO - to mapper
@@ -181,12 +191,6 @@ export class StockApiManager {
     const datas: IStockDetailData[] = [];
 
     for (const [date, stockDetails] of Object.entries(v)) {
-      const isInTimeFrame = this.isInTimeFrame(date, timeFrame);
-
-      if (!isInTimeFrame) {
-        continue;
-      }
-
       const stockDetail: IStockDetail = {
         open: stockDetails[StockDetailTypeValue.OPEN],
         high: stockDetails[StockDetailTypeValue.HIGH],

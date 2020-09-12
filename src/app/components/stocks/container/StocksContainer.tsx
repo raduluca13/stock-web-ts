@@ -174,7 +174,7 @@ export default class StocksContainer extends Component {
                 selectedOption={this.state.timeSeriesTypeSelected}
                 label={this.state.timeSeriesSelectLabel}
                 options={this.state.timeSeriesTypeOptions}
-                handleSelect={this.handleSelectTimeSeriesType}
+                handleSelect={(event) => this.handleSelectTimeSeriesType(event)}
               />
             )}
 
@@ -183,15 +183,23 @@ export default class StocksContainer extends Component {
                 selectedOption={this.state.stockDetailTypeSelected}
                 label={this.state.stockDetailSelectLabel}
                 options={this.state.stockDetailTypeOptions}
-                handleSelect={this.handleSelectStockDetailType}
+                handleSelect={(event) => this.handleSelectStockDetailType(event)}
               />
             )}
           </div>
 
           {this.state.showDatePickers && (
             <div className="stock-container__stock-options__date-pickers">
-              <DatePicker label="From" value={this.state.startDate} onChange={this.handleChangeDateFrom} />
-              <DatePicker label="Until" value={this.state.endDate} onChange={this.handleChangeDateUntil} />
+              <DatePicker
+                label="From"
+                value={this.state.startDate}
+                onChange={(event) => this.handleChangeDateFrom(event)}
+              />
+              <DatePicker
+                label="Until"
+                value={this.state.endDate}
+                onChange={(event) => this.handleChangeDateUntil(event)}
+              />
             </div>
           )}
         </div>
@@ -206,14 +214,24 @@ export default class StocksContainer extends Component {
     );
   }
 
+  private filterStocksOnDate(): void {
+    const filteredStocks = this.state.stockApiManager.filterStocksOnDate({
+      startDate: this.state.startDate,
+      endDate: this.state.endDate,
+    } as ITimeFrame);
+
+    this.setState({ ...this.state, stocks: filteredStocks });
+  }
+
   private handleChangeDateFrom(event: ChangeEvent<HTMLInputElement>) {
     const dateString = event.target.value;
-    this.setState({ ...this.state, startDate: dateString });
+    this.setState({ ...this.state, startDate: dateString }, () => this.filterStocksOnDate());
   }
 
   private handleChangeDateUntil(event: ChangeEvent<HTMLInputElement>) {
     const dateString = event.target.value;
-    this.setState({ ...this.state, endDate: dateString });
+
+    this.setState({ ...this.state, endDate: dateString }, () => this.filterStocksOnDate());
   }
 
   // TODO - rework and split to methods
@@ -293,7 +311,7 @@ export default class StocksContainer extends Component {
     });
   }
 
-  private handleSelectStockDetailType = (event: ChangeEvent<{ name?: string; value: unknown }>) => {
+  private handleSelectStockDetailType(event: ChangeEvent<{ name?: string; value: unknown }>): void {
     const selectedOption = event.target.value;
     const newTypeSelected = this.state.stockDetailTypeOptions.find(
       (stockDetailType: IDropdown) => stockDetailType.id === selectedOption
@@ -309,10 +327,10 @@ export default class StocksContainer extends Component {
       stockDetailTypeSelected: newTypeSelected,
       showChart: showChart,
     });
-  };
+  }
 
-  private handleSelectTimeSeriesType = (event: ChangeEvent<{ name?: string; value: unknown }>) => {
-    const selectedOption = event.target.value;
+  private handleSelectTimeSeriesType(event: ChangeEvent<{ name?: string; value: unknown }>): void {
+    const selectedOption = event.target.value as string;
     const newTypeSelected = this.state.timeSeriesTypeOptions.find(
       (timeSeriesType: IDropdown) => timeSeriesType.id === selectedOption
     );
@@ -326,9 +344,9 @@ export default class StocksContainer extends Component {
         this.updateStockDetail(selectedOption);
       }
     );
-  };
+  }
 
-  private updateStockDetail(selectedOption: unknown) {
+  private updateStockDetail(selectedOption: string) {
     if (selectedOption === TimeSeriesTypeKey.TIME_SERIES_MONTHLY) {
       this.getStockDetails(TimeSeriesTypeKey.TIME_SERIES_MONTHLY);
       return;
@@ -369,15 +387,16 @@ export default class StocksContainer extends Component {
               startDate: this.state.startDate,
               endDate: this.state.endDate,
             };
-            const data: IStockTimeSeriesData = this.state.stockApiManager.extractStockDetails(
+
+            const stocksData: IStockTimeSeriesData = this.state.stockApiManager.extractStockDetails(
               timeSeriesStockResponse,
               timeFrame
             );
 
             this.setState({
               ...this.state,
-              stocks: data.stockDetails,
-              metadata: data.metadata,
+              stocks: stocksData.stockDetails,
+              metadata: stocksData.metadata,
               isLoading: false,
             });
           }
