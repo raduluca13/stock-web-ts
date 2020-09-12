@@ -19,6 +19,7 @@ import CustomSelect from "../presentation/custom-select/CustomSelect";
 import SearchInput from "../presentation/search-input/SearchInput";
 import DatePicker from "../presentation/date-picker/DatePicker";
 import Chart from "../presentation/Chart/Chart";
+import { ITimeFrame } from "../data/interfaces/ITimeFrame.interface";
 
 export interface IStocksContainerProps {
   stocks: IStockDetailData[];
@@ -31,6 +32,9 @@ export interface IStocksContainerState {
 
   stockApiManager: StockApiManager;
   dropdownMapperService: DropdownMapperService;
+
+  startDate: string;
+  endDate: string;
 
   searchedSymbol: string;
   symbolsDrodpownLabel: string;
@@ -69,6 +73,9 @@ export default class StocksContainer extends Component {
 
     stockApiManager: new StockApiManager(),
     dropdownMapperService: new DropdownMapperService(),
+
+    startDate: "2018-05-24",
+    endDate: "2019-05-24",
 
     searchedSymbol: "",
     symbolsDrodpownLabel: "Symbol",
@@ -111,7 +118,7 @@ export default class StocksContainer extends Component {
   public render() {
     return (
       <div className="stock-container">
-        {this.state.stocks.length > 0 && (
+        {this.state.stocks.length > 0 && this.state.symbolSelected.id !== "" && (
           <div className="stock-container__description">
             <h1>Stocks</h1>
             <p>Information: {this.state?.metadata?.Information}</p>
@@ -183,8 +190,8 @@ export default class StocksContainer extends Component {
 
           {this.state.showDatePickers && (
             <div className="stock-container__stock-options__date-pickers">
-              <DatePicker label="From" value="2015-05-24" />
-              <DatePicker label="Until" value="2020-05-24" />
+              <DatePicker label="From" value={this.state.startDate} onChange={this.handleChangeDateFrom} />
+              <DatePicker label="Until" value={this.state.endDate} onChange={this.handleChangeDateUntil} />
             </div>
           )}
         </div>
@@ -197,6 +204,16 @@ export default class StocksContainer extends Component {
         )}
       </div>
     );
+  }
+
+  private handleChangeDateFrom(event: ChangeEvent<HTMLInputElement>) {
+    const dateString = event.target.value;
+    this.setState({ ...this.state, startDate: dateString });
+  }
+
+  private handleChangeDateUntil(event: ChangeEvent<HTMLInputElement>) {
+    const dateString = event.target.value;
+    this.setState({ ...this.state, endDate: dateString });
   }
 
   // TODO - rework and split to methods
@@ -348,7 +365,14 @@ export default class StocksContainer extends Component {
             }
 
             const timeSeriesStockResponse = val.data as ITimeSeriesStockResponse;
-            const data: IStockTimeSeriesData = this.state.stockApiManager.extractStockDetails(timeSeriesStockResponse);
+            const timeFrame: ITimeFrame = {
+              startDate: this.state.startDate,
+              endDate: this.state.endDate,
+            };
+            const data: IStockTimeSeriesData = this.state.stockApiManager.extractStockDetails(
+              timeSeriesStockResponse,
+              timeFrame
+            );
 
             this.setState({
               ...this.state,

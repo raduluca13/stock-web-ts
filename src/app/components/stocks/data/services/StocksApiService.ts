@@ -12,6 +12,7 @@ import { TimeSeriesTypeKey, TimeSeriesTypeValue } from "../enum/TimeSeriesTypes.
 import { IAlphaVantageSymbolSearchResponse } from "../interfaces/IAlphaVantageSymbolSearchResponse.interface";
 import { SybmolTypeKey, SymbolTypeValue } from "../enum/SymbolTypeKeys.enum";
 import { IAlphaVantageSearchMatch } from "../interfaces/IAlphaVantageSearchMatch.interface";
+import { ITimeFrame } from "../interfaces/ITimeFrame.interface";
 
 export class StockApiManager {
   // private readonly apiKey = "MG13GI1XD3DUU9ZL"; // todo - this is insecure here.
@@ -111,7 +112,7 @@ export class StockApiManager {
   }
 
   // TODO - to mapper
-  extractStockDetails(timeSeriesStockResponse: ITimeSeriesStockResponse) {
+  extractStockDetails(timeSeriesStockResponse: ITimeSeriesStockResponse, timeFrame: ITimeFrame): IStockTimeSeriesData {
     let monthlyStockDetails: IStockDetailData[];
     let weeklyStockDetails: IStockDetailData[];
     let mappedMetadata: IStockTimeSeriesMetadata;
@@ -123,12 +124,12 @@ export class StockApiManager {
 
     for (const [key, value] of Object.entries(timeSeriesStockResponse)) {
       if (key === TimeSeriesTypeValue.TIME_SERIES_MONTHLY) {
-        monthlyStockDetails = this.mapStockDetailData(value);
+        monthlyStockDetails = this.mapStockDetailData(value, timeFrame);
         stockTimeSeriesData.stockDetails = monthlyStockDetails;
       }
 
       if (key === TimeSeriesTypeValue.TIME_SERIES_WEEKLY) {
-        weeklyStockDetails = this.mapStockDetailData(value);
+        weeklyStockDetails = this.mapStockDetailData(value, timeFrame);
         stockTimeSeriesData.stockDetails = weeklyStockDetails;
       }
 
@@ -176,10 +177,16 @@ export class StockApiManager {
   }
 
   // TODO - to mapper
-  mapStockDetailData(v: IKeyVal): IStockDetailData[] {
+  mapStockDetailData(v: IKeyVal, timeFrame: ITimeFrame): IStockDetailData[] {
     const datas: IStockDetailData[] = [];
 
     for (const [date, stockDetails] of Object.entries(v)) {
+      const isInTimeFrame = this.isInTimeFrame(date, timeFrame);
+
+      if (!isInTimeFrame) {
+        continue;
+      }
+
       const stockDetail: IStockDetail = {
         open: stockDetails[StockDetailTypeValue.OPEN],
         high: stockDetails[StockDetailTypeValue.HIGH],
@@ -207,5 +214,13 @@ export class StockApiManager {
 
       return 0;
     });
+  }
+
+  private isInTimeFrame(date: string, timeFrame: ITimeFrame) {
+    const dateD = new Date(date);
+    const startDate = new Date(timeFrame.startDate);
+    const endDate = new Date(timeFrame.endDate);
+
+    return startDate < dateD && dateD < endDate;
   }
 }
