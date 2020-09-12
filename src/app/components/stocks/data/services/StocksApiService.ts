@@ -14,7 +14,8 @@ import { SybmolTypeKey, SymbolTypeValue } from "../enum/SymbolTypeKeys.enum";
 import { IAlphaVantageSearchMatch } from "../interfaces/IAlphaVantageSearchMatch.interface";
 
 export class StockApiManager {
-  private readonly apiKey = "MG13GI1XD3DUU9ZL"; // todo - this is insecure here.
+  // private readonly apiKey = "MG13GI1XD3DUU9ZL"; // todo - this is insecure here.
+  private readonly apiKey = "H6AIT30OD8F8OLZD"; // another key, just because alpha vantage has limits of 500 cals/day..
 
   getStockDetails(symbol: string, timeSeriesType: TimeSeriesTypeKey): Promise<AxiosResponse> {
     return axios.get(

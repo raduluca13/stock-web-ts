@@ -1,7 +1,7 @@
 import React, { Component, ChangeEvent } from "react";
 import "./StockContainer.css";
 import { AxiosResponse } from "axios";
-import { Snackbar } from "@material-ui/core";
+import { IconButton, Snackbar } from "@material-ui/core";
 import Loader from "react-loader-spinner";
 
 import { IDropdown } from "../data/interfaces/IDropdown.interface";
@@ -127,12 +127,18 @@ export default class StocksContainer extends Component {
 
         <div className="stock-container__snackbar">
           <Snackbar
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
             open={this.state.errorMessage !== undefined}
             autoHideDuration={6000}
             onClose={this.state.onCloseSnackbar}
-          >
-            <p>{this.state.errorMessage}</p>
-          </Snackbar>
+            message={this.state.errorMessage}
+          ></Snackbar>
+          {/* <IconButton size="small" aria-label="close" color="inherit" onClick={this.state.onCloseSnackbar}> */}
+          {/* <Icon>close</Icon> */}
+          {/* </IconButton> */}
         </div>
 
         <div className="stock-container__search-input">
@@ -165,7 +171,7 @@ export default class StocksContainer extends Component {
               />
             )}
 
-            {this.state.stockDetailTypeOptions.length > 0 && (
+            {this.state.stockDetailTypeOptions.length > 0 && this.state.timeSeriesTypeSelected.id !== "" && (
               <CustomSelect
                 selectedOption={this.state.stockDetailTypeSelected}
                 label={this.state.stockDetailSelectLabel}
@@ -193,47 +199,60 @@ export default class StocksContainer extends Component {
     );
   }
 
+  // TODO - rework and split to methods
   private onSearchSymbol(event: ChangeEvent<HTMLInputElement>): void {
     const searchedSymbol = event.target.value;
+    const defaultDropdown = this.state.dropdownMapperService.createDefaultDropdown();
 
-    this.setState({ ...this.state, searchedSymbol: searchedSymbol }, () => {
-      if (searchedSymbol.length >= 2) {
-        this.state.stockApiManager
-          ?.searchSymbol(searchedSymbol)
-          .then((response: AxiosResponse<any>) => {
-            const searchMatches = response?.data as IAlphaVantageSymbolSearchResponse;
-            const symbols = this.state.stockApiManager.extractSymbols(searchMatches);
+    this.setState(
+      {
+        ...this.state,
+        searchedSymbol: searchedSymbol,
+        symbolSelected: defaultDropdown,
+        timeSeriesTypeSelected: defaultDropdown,
+        stockDetailTypeSelected: defaultDropdown,
+        // symbolOptions: [],
+        timeSeriesTypeOptions: [],
+        stockDetailTypeOptions: [],
+        showDatePickers: false,
+        showChart: false,
+      },
+      () => {
+        if (searchedSymbol.length >= 2) {
+          this.state.stockApiManager
+            ?.searchSymbol(searchedSymbol)
+            .then((response: AxiosResponse<any>) => {
+              const searchMatches = response?.data as IAlphaVantageSymbolSearchResponse;
+              const symbols = this.state.stockApiManager.extractSymbols(searchMatches);
 
-            if (symbols.length > 0) {
-              const symbolDropdownList = this.state.dropdownMapperService.mapToSymbolDropdowns(symbols);
-              this.setState({ ...this.state, symbolOptions: symbolDropdownList, noSymbolsFound: false });
-            } else {
-              this.setState({
-                ...this.state,
-                noSymbolsFound: true,
-                symbolOptions: [],
-                timeSeriesTypeOptions: [],
-                stockDetailTypeOptions: [],
-                showDatePickers: false,
-              });
-            }
-          })
-          .catch((e) => console.error(e));
+              if (symbols.length > 0) {
+                const symbolDropdownList = this.state.dropdownMapperService.mapToSymbolDropdowns(symbols);
+                this.setState({
+                  ...this.state,
+                  symbolOptions: symbolDropdownList,
+                  noSymbolsFound: false,
+                });
+              } else {
+                this.setState({
+                  ...this.state,
+                  noSymbolsFound: true,
+                });
+              }
+            })
+            .catch((e) => console.error(e));
+        }
+
+        // resetted - TODO - check if needed but i don't think so because we did reset in the previous step
+        if (searchedSymbol.length === 0) {
+          this.setState({
+            ...this.state,
+            noSymbolsFound: false,
+            searchedSymbol: "",
+            symbolOptions: [],
+          });
+        }
       }
-
-      // resetted
-      if (searchedSymbol.length === 0) {
-        this.setState({
-          ...this.state,
-          noSymbolsFound: false,
-          searchedSymbol: "",
-          symbolOptions: [],
-          timeSeriesTypeOptions: [],
-          stockDetailTypeOptions: [],
-          showDatePickers: false,
-        });
-      }
-    });
+    );
   }
 
   private handleSelectSymbol(event: ChangeEvent<{ name?: string; value: unknown }>): void {
@@ -306,10 +325,17 @@ export default class StocksContainer extends Component {
 
   private getStockDetails(timeSeriesType: TimeSeriesTypeKey) {
     this.setState({ ...this.state, isLoading: true }, () => {
+      console.log(this.state.symbolSelected.id, this.state.symbolSelected.value, timeSeriesType);
+
       this.state.stockApiManager
         ?.getStockDetails(this.state.symbolSelected.id, timeSeriesType)
         .then((val: AxiosResponse) => {
           if (val.status === 200) {
+            if (Object.keys(val.data).includes("Error Message")) {
+              this.setState({ ...this.state, errorMessage: val.data["Error Message"], isLoading: false });
+              return;
+            }
+
             const timeSeriesStockResponse = val.data as ITimeSeriesStockResponse;
             const data: IStockTimeSeriesData = this.state.stockApiManager.extractStockDetails(timeSeriesStockResponse);
 
