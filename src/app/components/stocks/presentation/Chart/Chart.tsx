@@ -1,5 +1,4 @@
 import React from "react";
-import "./Chart.css";
 import { IStockDetailData } from "../../data/interfaces/IStockDetailData.interface";
 import { StockDetailTypeKey } from "../../data/enum/StockDetailsKeys.enum";
 import { VictoryChart } from "victory-chart";
