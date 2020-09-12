@@ -15,8 +15,8 @@ import { IAlphaVantageSearchMatch } from "../interfaces/IAlphaVantageSearchMatch
 import { ITimeFrame } from "../interfaces/ITimeFrame.interface";
 
 export class StockApiManager {
-  // private readonly apiKey = "MG13GI1XD3DUU9ZL"; // todo - this is insecure here.
-  private readonly apiKey = "H6AIT30OD8F8OLZD"; // another key, just because alpha vantage has limits of 500 cals/day..
+  private readonly apiKey = "MG13GI1XD3DUU9ZL"; // todo - this is insecure here.
+  // private readonly apiKey = "H6AIT30OD8F8OLZD"; // another key, just because alpha vantage has limits of 500 cals/day..
   private stocks: IStockTimeSeriesData = ({} as any) as IStockTimeSeriesData;
 
   getStockDetails(symbol: string, timeSeriesType: TimeSeriesTypeKey): Promise<AxiosResponse> {
@@ -148,7 +148,7 @@ export class StockApiManager {
     this.stocks = stockTimeSeriesData;
 
     const filteredStocks: IStockDetailData[] = this.filterStocksOnDate(timeFrame);
-    
+
     return { metadata: stockTimeSeriesData.metadata, stockDetails: filteredStocks };
   }
 

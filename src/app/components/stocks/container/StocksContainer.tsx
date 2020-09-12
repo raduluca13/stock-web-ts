@@ -20,6 +20,7 @@ import SearchInput from "../presentation/search-input/SearchInput";
 import DatePicker from "../presentation/date-picker/DatePicker";
 import Chart from "../presentation/Chart/Chart";
 import { ITimeFrame } from "../data/interfaces/ITimeFrame.interface";
+import ChartMaterial from "../presentation/chart-material/ChartMaterial";
 
 export interface IStocksContainerProps {
   stocks: IStockDetailData[];
@@ -223,9 +224,16 @@ export default class StocksContainer extends Component {
           )}
         </div>
 
-        {this.state.showChart && (
+        {/* {this.state.showChart && (
           <Chart
             data={this.state?.stocks}
+            stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
+          />
+        )} */}
+
+        {this.state.showChart && (
+          <ChartMaterial
+            data={this.state.stocks}
             stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
           />
         )}
