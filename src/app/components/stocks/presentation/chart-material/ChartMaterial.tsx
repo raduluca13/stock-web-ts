@@ -5,7 +5,7 @@ import {
   ValueAxis,
   Chart,
   LineSeries,
-  BarSeries,
+  SplineSeries,
   ZoomAndPan,
 } from "@devexpress/dx-react-chart-material-ui";
 import { StockDetailTypeKey } from "../../data/enum/StockDetailsKeys.enum";
@@ -18,8 +18,7 @@ export interface IChartMaterialProps {
 }
 
 export default function ChartMaterial(props: IChartMaterialProps) {
-  console.log({ props });
-  const getValue = (stockDetail: IStockDetailData) => {
+  const getValue: (stockDetail: IStockDetailData) => number = (stockDetail: IStockDetailData) => {
     switch (props.stockDetailType) {
       case StockDetailTypeKey.CLOSE: {
         return +stockDetail.stockDetail.close;
@@ -38,18 +37,19 @@ export default function ChartMaterial(props: IChartMaterialProps) {
       }
       case StockDetailTypeKey.NONE:
       default: {
-        return [""];
+        return 0;
       }
     }
   };
 
-  console.log(props.data);
+  const values = props.data.map((stockDetail: IStockDetailData) => getValue(stockDetail));
+  let averageFn = (array: number[]) => array.reduce((a: number, b: number) => a + b) / array.length;
+  const avg: number = averageFn(values);
+  const average = Math.round((avg + Number.EPSILON) * 100) / 100;
 
-  const mappedData = props.data.map((stockDetail: IStockDetailData) => {
-    return { argument: stockDetail.date, value: getValue(stockDetail) };
+  const mappedData = props.data.map((stockDetail: IStockDetailData, index: number) => {
+    return { argument: stockDetail.date, value: values[index], average: average };
   });
-
-  console.log({ mappedData });
 
   return (
     <Paper>
@@ -57,8 +57,10 @@ export default function ChartMaterial(props: IChartMaterialProps) {
         <ValueAxis />
         <ArgumentAxis />
 
+        <SplineSeries valueField="average" argumentField="argument" />
         <LineSeries valueField="value" argumentField="argument" />
         <ZoomAndPan />
+        <Animation />
       </Chart>
     </Paper>
   );
