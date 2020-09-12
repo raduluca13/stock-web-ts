@@ -9,14 +9,107 @@ import { IKeyVal } from "../interfaces/IKeyVal.interface";
 import { IStockDetail } from "../interfaces/IStockDetail.interface";
 import { StockDetailTypeValue } from "../enum/StockDetailsKeys.enum";
 import { TimeSeriesTypeKey, TimeSeriesTypeValue } from "../enum/TimeSeriesTypes.enum";
+import { IAlphaVantageSymbolSearchResponse } from "../interfaces/IAlphaVantageSymbolSearchResponse.interface";
+import { SybmolTypeKey, SymbolTypeValue } from "../enum/SymbolTypeKeys.enum";
+import { IAlphaVantageSearchMatch } from "../interfaces/IAlphaVantageSearchMatch.interface";
 
 export class StockApiManager {
-  apiKey = "MG13GI1XD3DUU9ZL"; // todo - this is insecure here.
+  private readonly apiKey = "MG13GI1XD3DUU9ZL"; // todo - this is insecure here.
 
-  getStockDetails(timeSeriesType: TimeSeriesTypeKey): Promise<AxiosResponse> {
-    return axios.get(`https://www.alphavantage.co/query?function=${timeSeriesType}&symbol=IBM&apikey=${this.apiKey}`);
+  getStockDetails(symbol: string, timeSeriesType: TimeSeriesTypeKey): Promise<AxiosResponse> {
+    return axios.get(
+      `https://www.alphavantage.co/query?function=${timeSeriesType}&symbol=${symbol}&apikey=${this.apiKey}`
+    );
   }
 
+  searchSymbol(searchedSymbol: string) {
+    return axios.get(
+      `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${searchedSymbol}&apikey=${this.apiKey}`
+    );
+  }
+
+  // TODO - sorting may need a check for isNan because of casting to number
+  extractSymbols(symbolSearchResponse: IAlphaVantageSymbolSearchResponse): IAlphaVantageSearchMatch[] {
+    return symbolSearchResponse.bestMatches
+      .map((match) => this.mapToSymbolDetails(match))
+      .sort((symbol1: IAlphaVantageSearchMatch, symbol2: IAlphaVantageSearchMatch) => {
+        if (+symbol1.MATCH_SCORE > +symbol2.MATCH_SCORE) {
+          return -1;
+        }
+
+        if (+symbol1.MATCH_SCORE < +symbol2.MATCH_SCORE) {
+          return 1;
+        }
+
+        return 0;
+      });
+  }
+
+  // TODO - can you improve not to have so many ifs?
+  mapToSymbolDetails(match: { key: SymbolTypeValue; value: string }): any {
+    let mappedMatch: IAlphaVantageSearchMatch = {
+      SYMBOL: "",
+      NAME: "",
+      TYPE: "",
+      REGION: "",
+      MARKET_OPEN: "",
+      MARKET_CLOSE: "",
+      TIMEZONE: "",
+      CURRENCY: "",
+      MATCH_SCORE: "",
+    };
+
+    for (const [key, value] of Object.entries(match)) {
+      if (key === SymbolTypeValue.SYMBOL) {
+        mappedMatch[SybmolTypeKey.SYMBOL] = value;
+        continue;
+      }
+
+      if (key === SymbolTypeValue.NAME) {
+        mappedMatch[SybmolTypeKey.NAME] = value;
+        continue;
+      }
+
+      if (key === SymbolTypeValue.TYPE) {
+        mappedMatch[SybmolTypeKey.TYPE] = value;
+        continue;
+      }
+
+      if (key === SymbolTypeValue.REGION) {
+        mappedMatch[SybmolTypeKey.REGION] = value;
+        continue;
+      }
+
+      if (key === SymbolTypeValue.MARKET_OPEN) {
+        mappedMatch[SybmolTypeKey.MARKET_OPEN] = value;
+        continue;
+      }
+
+      if (key === SymbolTypeValue.MARKET_CLOSE) {
+        mappedMatch[SybmolTypeKey.MARKET_CLOSE] = value;
+        continue;
+      }
+
+      if (key === SymbolTypeValue.TIMEZONE) {
+        mappedMatch[SybmolTypeKey.TIMEZONE] = value;
+        continue;
+      }
+
+      if (key === SymbolTypeValue.CURRENCY) {
+        mappedMatch[SybmolTypeKey.CURRENCY] = value;
+        continue;
+      }
+
+      if (key === SymbolTypeValue.MATCH_SCORE) {
+        mappedMatch[SybmolTypeKey.MATCH_SCORE] = value;
+        continue;
+      }
+    }
+
+    return mappedMatch;
+  }
+
+  // TODO - to mapper
   extractStockDetails(timeSeriesStockResponse: ITimeSeriesStockResponse) {
     let monthlyStockDetails: IStockDetailData[];
     let weeklyStockDetails: IStockDetailData[];
@@ -47,6 +140,7 @@ export class StockApiManager {
     return stockTimeSeriesData;
   }
 
+  // TODO - to mapper
   extractStockMetadata(v: IPairString) {
     const metadata: IStockTimeSeriesMetadata = {
       Information: "",
@@ -80,6 +174,7 @@ export class StockApiManager {
     return metadata;
   }
 
+  // TODO - to mapper
   mapStockDetailData(v: IKeyVal): IStockDetailData[] {
     const datas: IStockDetailData[] = [];
 

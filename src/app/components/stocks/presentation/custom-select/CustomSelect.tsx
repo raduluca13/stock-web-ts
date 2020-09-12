@@ -22,10 +22,7 @@ export interface ISelectProps {
   label: string;
   options: IDropdown[];
   selectedOption: IDropdown;
-  handleSelect: (
-    event: ChangeEvent<{ name?: string | undefined; value: unknown }>,
-    child: React.ReactNode
-  ) => void;
+  handleSelect: (event: ChangeEvent<{ name?: string; value: unknown }>, child: React.ReactNode) => void;
 }
 
 export default function CustomSelect(props: ISelectProps) {
@@ -34,10 +31,7 @@ export default function CustomSelect(props: ISelectProps) {
   return (
     <div>
       <FormControl className={classes.formControl}>
-        <InputLabel
-          id="select-container__label-id"
-          className="select-container__label"
-        >
+        <InputLabel id="select-container__label-id" className="select-container__label">
           {props.label}
         </InputLabel>
         <Select
@@ -47,11 +41,7 @@ export default function CustomSelect(props: ISelectProps) {
           onChange={props.handleSelect}
         >
           {props?.options?.map((option, key) => (
-            <MenuItem
-              className="select-container__select__option"
-              key={key}
-              value={option.id}
-            >
+            <MenuItem className="select-container__select__option" key={key} value={option.id}>
               {option.value}
             </MenuItem>
           ))}
