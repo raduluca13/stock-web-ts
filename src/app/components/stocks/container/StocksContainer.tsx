@@ -18,7 +18,7 @@ import { DropdownMapperService } from "../data/services/DropdownMapperService";
 import CustomSelect from "../presentation/custom-select/CustomSelect";
 import SearchInput from "../presentation/search-input/SearchInput";
 import DatePicker from "../presentation/date-picker/DatePicker";
-import Chart from "../presentation/chart/Chart";
+import Chart from "../presentation/Chart/Chart";
 
 export interface IStocksContainerProps {
   stocks: IStockDetailData[];
