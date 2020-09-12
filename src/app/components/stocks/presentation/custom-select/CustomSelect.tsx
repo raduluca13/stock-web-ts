@@ -22,7 +22,7 @@ export interface ISelectProps {
   label: string;
   options: IDropdown[];
   selectedOption: IDropdown;
-  handleSelect: (event: ChangeEvent<{ name?: string; value: unknown }>, child: React.ReactNode) => void;
+  handleSelect: (event: ChangeEvent<{ name?: string; value: unknown }>) => void;
 }
 
 export default function CustomSelect(props: ISelectProps) {

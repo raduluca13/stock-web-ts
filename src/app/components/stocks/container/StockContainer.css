@@ -17,11 +17,23 @@
 .stock-container__search-input {
   /* 8px to fit with select material, which has 8px left. TODO - convert to rem */
   margin-left: 8px;
+  width: 20rem;
 }
 
-.stock-container__dropdown-list {
+.stock-container__stock-options {
+  display: flex;
+}
+
+.stock-container__stock-options__dropdown-list {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   margin: 2rem 0 2rem 0;
+}
+
+.stock-container__stock-options__date-pickers {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  margin: 2rem 0 2rem 2rem;
 }
