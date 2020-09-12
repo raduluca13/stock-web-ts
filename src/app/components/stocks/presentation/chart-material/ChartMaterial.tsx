@@ -43,9 +43,11 @@ export default function ChartMaterial(props: IChartMaterialProps) {
   };
 
   const values = props.data.map((stockDetail: IStockDetailData) => getValue(stockDetail));
-  let averageFn = (array: number[]) => array.reduce((a: number, b: number) => a + b) / array.length;
-  const avg: number = averageFn(values);
-  const average = Math.round((avg + Number.EPSILON) * 100) / 100;
+  let averageFn = (array: number[]): number => array.reduce((a: number, b: number) => a + b) / array.length;
+  
+  // TODO - better check than this ternary
+  const avg: number = values.length > 0 ? averageFn(values) : 0;
+  const average: number = Math.round((avg + Number.EPSILON) * 100) / 100;
 
   const mappedData = props.data.map((stockDetail: IStockDetailData, index: number) => {
     return { argument: stockDetail.date, value: values[index], average: average };
@@ -60,7 +62,7 @@ export default function ChartMaterial(props: IChartMaterialProps) {
         <SplineSeries valueField="average" argumentField="argument" />
         <LineSeries valueField="value" argumentField="argument" />
         <ZoomAndPan />
-        <Animation />
+        {/* <Animation /> */}
       </Chart>
     </Paper>
   );
