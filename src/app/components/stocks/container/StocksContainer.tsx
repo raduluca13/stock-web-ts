@@ -177,8 +177,8 @@ export default class StocksContainer extends Component {
 
           {this.state.showDatePickers && (
             <div className="stock-container__stock-options__date-pickers">
-              <DatePicker  label="From" value="2015-05-24"/>
-              <DatePicker label="Until" value="2020-05-24"/>
+              <DatePicker label="From" value="2015-05-24" />
+              <DatePicker label="Until" value="2020-05-24" />
             </div>
           )}
         </div>
@@ -243,6 +243,7 @@ export default class StocksContainer extends Component {
     );
     const timeSeriesTypeOptions = this.state.dropdownMapperService.mapToTimeSeriesTypeDropdown();
     const stockDetailTypeOptions = this.state.dropdownMapperService.mapToStockDetailTypeDropdown();
+    const defaultDropdown = this.state.dropdownMapperService.createDefaultDropdown();
 
     this.setState({
       ...this.state,
@@ -250,6 +251,9 @@ export default class StocksContainer extends Component {
       timeSeriesTypeOptions: timeSeriesTypeOptions,
       stockDetailTypeOptions: stockDetailTypeOptions,
       showDatePickers: true,
+      stockDetailTypeSelected: defaultDropdown,
+      timeSeriesTypeSelected: defaultDropdown,
+      showChart: false,
     });
   }
 

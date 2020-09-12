@@ -32,4 +32,11 @@ export class DropdownMapperService {
       } as IDropdown;
     });
   }
+
+  createDefaultDropdown(): IDropdown {
+    return {
+      id: "",
+      value: "",
+    };
+  }
 }
