@@ -325,14 +325,25 @@ export default class StocksContainer extends Component {
 
   private getStockDetails(timeSeriesType: TimeSeriesTypeKey) {
     this.setState({ ...this.state, isLoading: true }, () => {
-      console.log(this.state.symbolSelected.id, this.state.symbolSelected.value, timeSeriesType);
+      const defaultDropdown = this.state.dropdownMapperService.createDefaultDropdown();
 
       this.state.stockApiManager
         ?.getStockDetails(this.state.symbolSelected.id, timeSeriesType)
         .then((val: AxiosResponse) => {
           if (val.status === 200) {
             if (Object.keys(val.data).includes("Error Message")) {
-              this.setState({ ...this.state, errorMessage: val.data["Error Message"], isLoading: false });
+              this.setState({
+                ...this.state,
+                errorMessage: val.data["Error Message"],
+                isLoading: false,
+                symbolSelected: defaultDropdown,
+                timeSeriesTypeSelected: defaultDropdown,
+                stockDetailTypeSelected: defaultDropdown,
+                timeSeriesTypeOptions: [],
+                stockDetailTypeOptions: [],
+                showChart: false,
+                showDatePickers: false,
+              });
               return;
             }
 
