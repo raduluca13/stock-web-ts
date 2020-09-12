@@ -6,6 +6,7 @@ import configureStore from "app/store/Store";
 
 const store = configureStore();
 
+
 ReactDOM.render(<Root store={store} />, document.getElementById("root") as HTMLElement);
 
 // nice reference for testing, though deprecated?
