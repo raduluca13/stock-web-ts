@@ -10,8 +10,18 @@
 /* TODO - covert to rem and remove as much comments as possible not to have load */
 .stock-container__description {
   /* 8px to fit with select material, which has 8px left. TODO - convert to rem */
-  margin-left: 8px;
-  margin-bottom: 1rem;
+  margin-left: 0.5rem;
+  margin-bottom: 3rem;
+}
+
+.stock-container__description__title {
+  display: flex;
+  align-items: center;
+}
+
+.stock-container__description__button {
+  height: 2rem;
+  left: 2rem;
 }
 
 .stock-container__search-input {

@@ -1,7 +1,7 @@
 import React, { Component, ChangeEvent } from "react";
 import "./StockContainer.css";
 import { AxiosResponse } from "axios";
-import { IconButton, Snackbar } from "@material-ui/core";
+import { Button, IconButton, Snackbar } from "@material-ui/core";
 import Loader from "react-loader-spinner";
 
 import { IDropdown } from "../data/interfaces/IDropdown.interface";
@@ -54,10 +54,12 @@ export interface IStocksContainerState {
   // TODO - change to a more suggestive name for an API error
   errorMessage?: string;
 
+  isOpenedDetailsButton: boolean;
+  detailsButtonStateLabel: string;
+
   showDatePickers: boolean;
   isLoading: boolean;
   showChart: boolean;
-
   onCloseSnackbar: () => void;
 }
 
@@ -101,10 +103,12 @@ export default class StocksContainer extends Component {
     } as IDropdown,
     timeSeriesTypeOptions: [],
 
+    detailsButtonStateLabel: "Open Details",
+    isOpenedDetailsButton: false,
+
     showDatePickers: false,
     isLoading: false,
     showChart: false,
-
     errorMessage: undefined,
     onCloseSnackbar: () => {
       this.setState({ ...this.state, errorMessage: undefined });
@@ -120,11 +124,26 @@ export default class StocksContainer extends Component {
       <div className="stock-container">
         {this.state.stocks.length > 0 && this.state.symbolSelected.id !== "" && (
           <div className="stock-container__description">
-            <h1>Stocks</h1>
-            <p>Information: {this.state?.metadata?.Information}</p>
-            <p>Symbol: {this.state?.metadata?.Symbol}</p>
-            <p>Last Refreshed: {this.state?.metadata?.LastRefreshed}</p>
-            <p>Time Zone: {this.state?.metadata?.TimeZone}</p>
+            <div className="stock-container__description__title">
+              <h1>Stocks</h1>
+
+              <Button
+                className="stock-container__description__button"
+                variant="contained"
+                onClick={() => this.onClickDetailsButton()}
+              >
+                {this.state.detailsButtonStateLabel}
+              </Button>
+            </div>
+
+            {this.state.isOpenedDetailsButton && (
+              <div className="stock-container__description__details">
+                <p>Information: {this.state?.metadata?.Information}</p>
+                <p>Symbol: {this.state?.metadata?.Symbol}</p>
+                <p>Last Refreshed: {this.state?.metadata?.LastRefreshed}</p>
+                <p>Time Zone: {this.state?.metadata?.TimeZone}</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -212,6 +231,18 @@ export default class StocksContainer extends Component {
         )}
       </div>
     );
+  }
+
+  onClickDetailsButton(): void {
+    if (this.state.isOpenedDetailsButton === false) {
+      this.setState({ ...this.state, detailsButtonStateLabel: "Close Details", isOpenedDetailsButton: true });
+      return;
+    }
+
+    if (this.state.isOpenedDetailsButton === true) {
+      this.setState({ ...this.state, detailsButtonStateLabel: "Open Details", isOpenedDetailsButton: false });
+      return;
+    }
   }
 
   private filterStocksOnDate(): void {
