@@ -18,6 +18,7 @@ export interface IChartMaterialProps {
 }
 
 export default function ChartMaterial(props: IChartMaterialProps) {
+  console.log({ props });
   const getValue: (stockDetail: IStockDetailData) => number = (stockDetail: IStockDetailData) => {
     switch (props.stockDetailType) {
       case StockDetailTypeKey.CLOSE: {
@@ -44,7 +45,7 @@ export default function ChartMaterial(props: IChartMaterialProps) {
 
   const values = props.data.map((stockDetail: IStockDetailData) => getValue(stockDetail));
   let averageFn = (array: number[]): number => array.reduce((a: number, b: number) => a + b) / array.length;
-  
+
   // TODO - better check than this ternary
   const avg: number = values.length > 0 ? averageFn(values) : 0;
   const average: number = Math.round((avg + Number.EPSILON) * 100) / 100;
@@ -52,6 +53,8 @@ export default function ChartMaterial(props: IChartMaterialProps) {
   const mappedData = props.data.map((stockDetail: IStockDetailData, index: number) => {
     return { argument: stockDetail.date, value: values[index], average: average };
   });
+
+  console.log({ mappedData });
 
   return (
     <Paper>

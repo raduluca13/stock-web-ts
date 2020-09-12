@@ -146,9 +146,9 @@ export class StockApiManager {
 
     // keep stocks before filtering so we can re-filter easily without an API call after dates are changed
     this.stocks = stockTimeSeriesData;
-
+    console.log(this.stocks);
     const filteredStocks: IStockDetailData[] = this.filterStocksOnDate(timeFrame);
-
+    console.log({ filteredStocks });
     return { metadata: stockTimeSeriesData.metadata, stockDetails: filteredStocks };
   }
 

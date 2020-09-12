@@ -78,7 +78,7 @@ export default class StocksContainer extends Component {
     dropdownMapperService: new DropdownMapperService(),
 
     startDate: "2018-05-24",
-    endDate: "2019-05-24",
+    endDate: "2020-10-24",
 
     searchedSymbol: "",
     symbolsDrodpownLabel: "Symbol",
@@ -350,24 +350,6 @@ export default class StocksContainer extends Component {
     });
   }
 
-  private handleSelectStockDetailType(event: ChangeEvent<{ name?: string; value: unknown }>): void {
-    const selectedOption = event.target.value;
-    const newTypeSelected = this.state.stockDetailTypeOptions.find(
-      (stockDetailType: IDropdown) => stockDetailType.id === selectedOption
-    );
-
-    const showChart =
-      this.state.timeSeriesTypeSelected.id !== "" &&
-      this.state.timeSeriesTypeSelected.id !== "NONE" &&
-      selectedOption !== "NONE";
-
-    this.setState({
-      ...this.state,
-      stockDetailTypeSelected: newTypeSelected,
-      showChart: showChart,
-    });
-  }
-
   private handleSelectTimeSeriesType(event: ChangeEvent<{ name?: string; value: unknown }>): void {
     const selectedOption = event.target.value as string;
     const newTypeSelected = this.state.timeSeriesTypeOptions.find(
@@ -380,8 +362,30 @@ export default class StocksContainer extends Component {
         timeSeriesTypeSelected: newTypeSelected,
       },
       () => {
+        console.log(this.state);
         this.updateStockDetail(selectedOption);
       }
+    );
+  }
+
+  private handleSelectStockDetailType(event: ChangeEvent<{ name?: string; value: unknown }>): void {
+    const selectedOption = event.target.value;
+    const newTypeSelected = this.state.stockDetailTypeOptions.find(
+      (stockDetailType: IDropdown) => stockDetailType.id === selectedOption
+    );
+
+    const showChart =
+      this.state.timeSeriesTypeSelected.id !== "" &&
+      this.state.timeSeriesTypeSelected.id !== "NONE" &&
+      selectedOption !== "NONE";
+
+    this.setState(
+      {
+        ...this.state,
+        stockDetailTypeSelected: newTypeSelected,
+        showChart: showChart,
+      },
+      () => console.log(this.state)
     );
   }
 
@@ -426,11 +430,14 @@ export default class StocksContainer extends Component {
               startDate: this.state.startDate,
               endDate: this.state.endDate,
             };
+            console.log({ timeSeriesStockResponse });
 
             const stocksData: IStockTimeSeriesData = this.state.stockApiManager.extractStockDetails(
               timeSeriesStockResponse,
               timeFrame
             );
+
+            console.log({ stocksData });
 
             this.setState({
               ...this.state,
