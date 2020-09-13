@@ -198,14 +198,16 @@ export default class StocksContainer extends Component {
               />
             )}
 
-            {this.state.stockDetailTypeOptions.length > 0 && this.state.timeSeriesTypeSelected.id !== "" && (
-              <CustomSelect
-                selectedOption={this.state.stockDetailTypeSelected}
-                label={this.state.stockDetailSelectLabel}
-                options={this.state.stockDetailTypeOptions}
-                handleSelect={(event) => this.handleSelectStockDetailType(event)}
-              />
-            )}
+            {this.state.stockDetailTypeOptions.length > 0 &&
+              this.state.timeSeriesTypeSelected.id !== "" &&
+              this.state.timeSeriesTypeSelected.id !== "NONE" && (
+                <CustomSelect
+                  selectedOption={this.state.stockDetailTypeSelected}
+                  label={this.state.stockDetailSelectLabel}
+                  options={this.state.stockDetailTypeOptions}
+                  handleSelect={(event) => this.handleSelectStockDetailType(event)}
+                />
+              )}
           </div>
 
           {this.state.showDatePickers && (
@@ -358,13 +360,19 @@ export default class StocksContainer extends Component {
       (timeSeriesType: IDropdown) => timeSeriesType.id === selectedOption
     );
 
+    const showChart =
+      selectedOption !== "" &&
+      selectedOption !== "NONE" &&
+      this.state.stockDetailTypeSelected.id !== "" &&
+      this.state.stockDetailTypeSelected.id !== "NONE";
+
     this.setState(
       {
         ...this.state,
         timeSeriesTypeSelected: newTypeSelected,
+        showChart: showChart,
       },
       () => {
-        console.log(this.state);
         this.updateStockDetail(selectedOption);
       }
     );
@@ -376,6 +384,7 @@ export default class StocksContainer extends Component {
       (stockDetailType: IDropdown) => stockDetailType.id === selectedOption
     );
 
+    // TODO
     const showChart =
       this.state.timeSeriesTypeSelected.id !== "" &&
       this.state.timeSeriesTypeSelected.id !== "NONE" &&
