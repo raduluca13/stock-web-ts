@@ -20,7 +20,6 @@ import SearchInput from "../presentation/search-input/SearchInput";
 import DatePicker from "../presentation/date-picker/DatePicker";
 import Chart from "../presentation/Chart/Chart";
 import { ITimeFrame } from "../data/interfaces/ITimeFrame.interface";
-import ChartMaterial from "../presentation/Chart/ChartMaterial";
 import NivoChart from "../presentation/Chart/NivoChart";
 import ReactVisChart from "../presentation/Chart/ReactVisChart";
 
