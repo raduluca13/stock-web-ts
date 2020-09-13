@@ -10,6 +10,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+/* @import "react-vis/dist/style"; */
+
+/* TODO - use imports as in the following example for more optimized imports (only what we need) */
+/* @import "~react-vis/dist/styles/legends"; */
 
 /*
 TODO - use nice colors (you can change fonts according to the current time/date)

@@ -6,17 +6,24 @@ import {
   Chart,
   LineSeries,
   SplineSeries,
+  ScatterSeries,
+  Tooltip,
   ZoomAndPan,
 } from "@devexpress/dx-react-chart-material-ui";
 import { StockDetailTypeKey } from "../../data/enum/StockDetailsKeys.enum";
 import { IStockDetailData } from "../../data/interfaces/IStockDetailData.interface";
 import { Animation } from "@devexpress/dx-react-chart";
+import { EventTracker } from "@devexpress/dx-react-chart";
+
+import { symbol, symbolCross, symbolDiamond, symbolStar } from "d3-shape";
 
 export interface IChartMaterialProps {
   data: IStockDetailData[];
   stockDetailType: StockDetailTypeKey;
 }
 
+// REMOVE THIS library. FULL OF BUGS.
+// https://devexpress.github.io/devextreme-reactive/react/chart/docs/guides/series/
 export default function ChartMaterial(props: IChartMaterialProps) {
   console.log({ props });
   const getValue: (stockDetail: IStockDetailData) => number = (stockDetail: IStockDetailData) => {
@@ -58,15 +65,41 @@ export default function ChartMaterial(props: IChartMaterialProps) {
 
   return (
     <Paper>
-      <Chart data={mappedData} rotated>
+      <Chart data={mappedData}>
         <ValueAxis />
         <ArgumentAxis />
 
         <SplineSeries valueField="average" argumentField="argument" />
-        <LineSeries valueField="value" argumentField="argument" />
+        <LineSeries valueField="value" argumentField="argument" seriesComponent={LineWithDiamondPoint} />
         <ZoomAndPan />
+        <EventTracker />
+        <Tooltip />
         {/* <Animation /> */}
       </Chart>
     </Paper>
   );
 }
+
+const Point = (type: any, styles: any) => (props: any) => {
+  const { arg, val, color } = props;
+  return (
+    <path
+      fill={color}
+      transform={`translate(${arg} ${val})`}
+      d={symbol().size(100).type(type)() as string | undefined}
+      style={styles}
+    />
+  );
+};
+
+const DiamondPoint = Point(symbolDiamond, {
+  stroke: "white",
+  strokeWidth: "1px",
+});
+
+const LineWithDiamondPoint = (props: any) => (
+  <React.Fragment>
+    <LineSeries.Path {...props} />
+    <ScatterSeries.Path {...props} pointComponent={DiamondPoint} />
+  </React.Fragment>
+);

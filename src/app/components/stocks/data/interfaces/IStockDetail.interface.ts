@@ -1,7 +1,7 @@
 export interface IStockDetail {
-  open: number;
-  high: number;
-  close: number;
-  low: number;
-  volume: number;
+  open: string;
+  high: string;
+  close: string;
+  low: string;
+  volume: string;
 }

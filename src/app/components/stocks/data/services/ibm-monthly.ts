@@ -1,9 +1,11 @@
-{
+import { ITimeSeriesStockResponse } from "../interfaces/ITimeSeriesStockResponse.interface";
+
+export const ibmMonthlyMock: ITimeSeriesStockResponse = {
     "Meta Data": {
-        "1. Information": "Monthly Prices (open, high, low, close) and Volumes",
-        "2. Symbol": "IBM",
-        "3. Last Refreshed": "2020-09-11",
-        "4. Time Zone": "US/Eastern"
+        // "1. Information": "Monthly Prices (open, high, low, close) and Volumes",
+        // "2. Symbol": "IBM",
+        // "3. Last Refreshed": "2020-09-11",
+        // "4. Time Zone": "US/Eastern"
     },
     "Monthly Time Series": {
         "2020-09-11": {

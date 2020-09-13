@@ -1,0 +1,2 @@
+reinstall node modules and if its not working try https://stackoverflow.com/questions/52761075/react-could-not-find-a-declaration-file-for-module-react-vis
+https://gist.github.com/area80/72b59b2e7487489168ed1349a4718d8b

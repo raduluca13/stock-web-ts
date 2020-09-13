@@ -13,6 +13,8 @@ import { IAlphaVantageSymbolSearchResponse } from "../interfaces/IAlphaVantageSy
 import { SybmolTypeKey, SymbolTypeValue } from "../enum/SymbolTypeKeys.enum";
 import { IAlphaVantageSearchMatch } from "../interfaces/IAlphaVantageSearchMatch.interface";
 import { ITimeFrame } from "../interfaces/ITimeFrame.interface";
+import { ibmMonthlyMock } from "./ibm-monthly";
+import { ibmWeeklyMock } from "./ibm-weekly";
 
 export class StockApiManager {
   private readonly apiKey = "MG13GI1XD3DUU9ZL"; // todo - this is insecure here.
@@ -20,9 +22,15 @@ export class StockApiManager {
   private stocks: IStockTimeSeriesData = ({} as any) as IStockTimeSeriesData;
 
   getStockDetails(symbol: string, timeSeriesType: TimeSeriesTypeKey): Promise<AxiosResponse> {
-    return axios.get(
-      `https://www.alphavantage.co/query?function=${timeSeriesType}&symbol=${symbol}&apikey=${this.apiKey}`
-    );
+    return Promise.resolve({
+      data: timeSeriesType === TimeSeriesTypeKey.TIME_SERIES_MONTHLY ? ibmMonthlyMock : ibmWeeklyMock,
+      status: 200,
+      statusText: "200",
+      headers: {},
+    } as AxiosResponse<any>);
+    // return axios.get(
+    //   `https://www.alphavantage.co/query?function=${timeSeriesType}&symbol=${symbol}&apikey=${this.apiKey}`
+    // );
   }
 
   filterStocksOnDate(timeFrame: ITimeFrame): IStockDetailData[] {

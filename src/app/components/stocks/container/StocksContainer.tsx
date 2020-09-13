@@ -20,7 +20,9 @@ import SearchInput from "../presentation/search-input/SearchInput";
 import DatePicker from "../presentation/date-picker/DatePicker";
 import Chart from "../presentation/Chart/Chart";
 import { ITimeFrame } from "../data/interfaces/ITimeFrame.interface";
-import ChartMaterial from "../presentation/chart-material/ChartMaterial";
+import ChartMaterial from "../presentation/Chart/ChartMaterial";
+import NivoChart from "../presentation/Chart/NivoChart";
+import ReactVisChart from "../presentation/Chart/ReactVisChart";
 
 export interface IStocksContainerProps {
   stocks: IStockDetailData[];
@@ -224,19 +226,35 @@ export default class StocksContainer extends Component {
           )}
         </div>
 
-        {/* {this.state.showChart && (
+        <div className="stock-container__chart">
+          {/* {this.state.showChart && (
+            <ReactVisChart
+              data={this.state?.stocks}
+              stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
+            />
+          )} */}
+
+          {this.state.showChart && (
+            <NivoChart
+              data={this.state?.stocks}
+              stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
+            />
+          )}
+
+          {/* {this.state.showChart && (
           <Chart
             data={this.state?.stocks}
             stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
           />
         )} */}
 
-        {this.state.showChart && (
+          {/* {this.state.showChart && (
           <ChartMaterial
             data={this.state.stocks}
             stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
           />
-        )}
+        )} */}
+        </div>
       </div>
     );
   }
@@ -408,6 +426,7 @@ export default class StocksContainer extends Component {
       this.state.stockApiManager
         ?.getStockDetails(this.state.symbolSelected.id, timeSeriesType)
         .then((val: AxiosResponse) => {
+          console.log({ val });
           if (val.status === 200) {
             if (Object.keys(val.data).includes("Error Message")) {
               this.setState({
