@@ -1,5 +1,6 @@
-import { ResponsiveBar } from "@nivo/bar";
-import React from "react";
+import { Bar, ResponsiveBar } from "@nivo/bar";
+import { line } from "d3";
+import React, { Fragment } from "react";
 import { StockDetailTypeKey } from "../../data/enum/StockDetailsKeys.enum";
 import { TimeSeriesTypeKey } from "../../data/enum/TimeSeriesTypes.enum";
 import { IStockDetailData } from "../../data/interfaces/IStockDetailData.interface";
@@ -52,10 +53,50 @@ export default function NivoChart(props: INivoChartProps) {
   });
 
   console.log({ mappedData });
+  {
+    /* <Line
+            {...commonProperties}
+            curve="monotoneX"
+            data={[
+                {
+                    id: 'fake corp. A',
+                    data: [
+                        { x: 0, y: 7 },
+                        { x: 1, y: 5 },
+                        { x: 2, y: 11 },
+                        { x: 3, y: 9 },
+                        { x: 4, y: 13 },
+                        { x: 7, y: 16 },
+                        { x: 9, y: 12 },
+                    ],
+                },
+            ]}
+            xScale={{
+                type: 'linear',
+                min: 0,
+                max: 'auto',
+            }}
+            axisLeft={{
+                legend: 'linear scale',
+                legendOffset: 12,
+            }}
+            axisBottom={{
+                legend: 'linear scale',
+                legendOffset: -12,
+            }}
+        /> */
+  }
 
   return (
+    // <Bar
+    //   data={mappedData}
+    //   layers={["axes" as any, "grid" as any, "bars" as any, "markers" as any, "legends" as any, LineLayer]}
+    //   height={200}
+    //   width={300}
+    // />
     <ResponsiveBar
       data={mappedData}
+      // layers={[LineLayer]}
       minValue="auto"
       maxValue="auto"
       keys={[`value`]}
@@ -169,3 +210,21 @@ export default function NivoChart(props: INivoChartProps) {
 // no chart will be rendered.
 // website examples showcase many properties,
 // you'll often use just a few of them.
+
+// const LineLayer = () => {
+//   const lineGenerator = line()([
+//     [1, 3],
+//     [2, 7],
+//     [3, 2],
+//     [5, 2],
+//   ]) as string;
+
+//   return (
+//     <Fragment>
+//       <path d={lineGenerator} fill="none" style={{ pointerEvents: "none" }} />
+//       {/* {bars.map((bar) => ( */}
+//       <circle r={4} fill="white" style={{ pointerEvents: "none" }} />
+//       {/* ))} */}
+//     </Fragment>
+//   );
+// };

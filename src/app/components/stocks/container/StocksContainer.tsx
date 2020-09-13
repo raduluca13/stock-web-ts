@@ -10,6 +10,7 @@ import { IStockTimeSeriesMetadata } from "../data/interfaces/IStockTimeSeriesMet
 import { IStockTimeSeriesData } from "../data/interfaces/IStockTimeSeries.interface";
 import { ITimeSeriesStockResponse } from "../data/interfaces/ITimeSeriesStockResponse.interface";
 import { IAlphaVantageSymbolSearchResponse } from "../data/interfaces/IAlphaVantageSymbolSearchResponse.interface";
+import { ITimeFrame } from "../data/interfaces/ITimeFrame.interface";
 import { TimeSeriesTypeKey } from "../data/enum/TimeSeriesTypes.enum";
 import { StockDetailTypeKey } from "../data/enum/StockDetailsKeys.enum";
 
@@ -19,9 +20,9 @@ import CustomSelect from "../presentation/custom-select/CustomSelect";
 import SearchInput from "../presentation/search-input/SearchInput";
 import DatePicker from "../presentation/date-picker/DatePicker";
 import Chart from "../presentation/Chart/Chart";
-import { ITimeFrame } from "../data/interfaces/ITimeFrame.interface";
 import NivoChart from "../presentation/Chart/NivoChart";
 import ReactVisChart from "../presentation/Chart/ReactVisChart";
+import ApexChart from "../presentation/Chart/ApexChart";
 
 export interface IStocksContainerProps {
   stocks: IStockDetailData[];
@@ -226,6 +227,13 @@ export default class StocksContainer extends Component {
         </div>
 
         <div className="stock-container__chart">
+        {this.state.showChart && (
+            <ApexChart
+              data={this.state?.stocks}
+              stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
+            />
+          )}
+         
           {/* {this.state.showChart && (
             <ReactVisChart
               data={this.state?.stocks}
@@ -233,12 +241,12 @@ export default class StocksContainer extends Component {
             />
           )} */}
 
-          {this.state.showChart && (
+          {/* {this.state.showChart && (
             <NivoChart
               data={this.state?.stocks}
               stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
             />
-          )}
+          )} */}
 
           {/* {this.state.showChart && (
           <Chart
@@ -258,7 +266,7 @@ export default class StocksContainer extends Component {
     );
   }
 
-  onClickDetailsButton(): void {
+  private onClickDetailsButton(): void {
     if (this.state.isOpenedDetailsButton === false) {
       this.setState({ ...this.state, detailsButtonStateLabel: "Close Details", isOpenedDetailsButton: true });
       return;
@@ -360,9 +368,9 @@ export default class StocksContainer extends Component {
       symbolSelected: newTypeSelected,
       timeSeriesTypeOptions: timeSeriesTypeOptions,
       stockDetailTypeOptions: stockDetailTypeOptions,
-      showDatePickers: true,
       stockDetailTypeSelected: defaultDropdown,
       timeSeriesTypeSelected: defaultDropdown,
+      showDatePickers: true,
       showChart: false,
     });
   }
