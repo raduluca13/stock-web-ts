@@ -20,8 +20,6 @@ import CustomSelect from "../presentation/custom-select/CustomSelect";
 import SearchInput from "../presentation/search-input/SearchInput";
 import DatePicker from "../presentation/date-picker/DatePicker";
 import Chart from "../presentation/Chart/Chart";
-import NivoChart from "../presentation/Chart/NivoChart";
-import ReactVisChart from "../presentation/Chart/ReactVisChart";
 import ApexChart from "../presentation/Chart/ApexChart";
 
 export interface IStocksContainerProps {
@@ -227,37 +225,16 @@ export default class StocksContainer extends Component {
         </div>
 
         <div className="stock-container__chart">
-        {this.state.showChart && (
+          {this.state.showChart && (
             <ApexChart
               data={this.state?.stocks}
               stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
             />
           )}
-         
-          {/* {this.state.showChart && (
-            <ReactVisChart
-              data={this.state?.stocks}
-              stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
-            />
-          )} */}
-
-          {/* {this.state.showChart && (
-            <NivoChart
-              data={this.state?.stocks}
-              stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
-            />
-          )} */}
 
           {/* {this.state.showChart && (
           <Chart
             data={this.state?.stocks}
-            stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
-          />
-        )} */}
-
-          {/* {this.state.showChart && (
-          <ChartMaterial
-            data={this.state.stocks}
             stockDetailType={this.state.stockDetailTypeSelected.id as StockDetailTypeKey}
           />
         )} */}
