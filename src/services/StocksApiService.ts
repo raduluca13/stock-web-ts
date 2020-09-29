@@ -49,8 +49,12 @@ export class StockApiManager {
 
   // TODO - sorting may need a check for isNan because of casting to number
   extractSymbols(symbolSearchResponse: IAlphaVantageSymbolSearchResponse): IAlphaVantageSearchMatch[] {
+    if (symbolSearchResponse.bestMatches == null || symbolSearchResponse.bestMatches.length === 0) return [];
+
     return symbolSearchResponse.bestMatches
-      .map((match) => this.mapToSymbolDetails(match))
+      .map((match) => {
+        return this.mapToSymbolDetails(match)
+      })
       .sort((symbol1: IAlphaVantageSearchMatch, symbol2: IAlphaVantageSearchMatch) => {
         if (+symbol1.MATCH_SCORE > +symbol2.MATCH_SCORE) {
           return -1;

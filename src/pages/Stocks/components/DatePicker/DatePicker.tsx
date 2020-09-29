@@ -15,7 +15,7 @@ const DatePicker = (props: IDatePickerProps) =>
     defaultValue={props.value}
     onChange={props.onChange}
     InputLabelProps={{
-      shrink: true,
+      shrink: true
     }}
   />
 

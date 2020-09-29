@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Shell from "./components/Shell/Shell";
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import NotFound from "components/NotFound/NotFound";
+import storeContext from './stores/StoresContext'
 
 interface IRootProps {
   // store: Store<IAppState>;
@@ -9,10 +10,12 @@ interface IRootProps {
 
 interface IRootState { }
 
-export default class Root extends Component<IRootProps, IRootState> {
-  public render() {
+const Root = () => {
+    React.useContext(storeContext);
+
     return (
       // <Provider store={this.props.store}>
+    
       <Router>
         <Switch>
           <Route path="/" component={Shell} />
@@ -22,5 +25,6 @@ export default class Root extends Component<IRootProps, IRootState> {
       </Router>
       // </Provider>
     );
-  }
 }
+
+export default Root;

@@ -112,15 +112,251 @@ export default class StocksContainer extends Component {
     showChart: false,
     errorMessage: undefined,
     onCloseSnackbar: () => {
-      this.setState({ ...this.state, errorMessage: undefined });
+      this.setState({ errorMessage: undefined });
     },
   };
 
-  public componentDidUpdate() {
-    // console.log("updated", this.state);
+
+
+  private onClickDetailsButton(): void {
+    const { isOpenedDetailsButton } = this.state;
+
+    this.setState({
+      detailsButtonStateLabel: !isOpenedDetailsButton ? "Close Details" : "Open Details",
+      isOpenedDetailsButton: !isOpenedDetailsButton
+    })
+  }
+
+  private filterStocksOnDate(): void {
+    const { startDate, endDate, stockApiManager } = this.state;
+    const filteredStocks = stockApiManager.filterStocksOnDate({
+      startDate,
+      endDate
+    } as ITimeFrame);
+
+
+    this.setState({
+      stocks: filteredStocks
+    });
+  }
+
+  private handleChangeDate(event: ChangeEvent<HTMLInputElement>, dateType: string) {
+    const dateString = event.target.value;
+
+    this.setState({
+      [dateType]: dateString
+    });
+
+    this.filterStocksOnDate()
+  }
+
+  // useCallback(myCallback, [searchedSymbol])
+
+  // useEffect(myCallback)
+  // myCallback(){
+  // at mount
+  // return ... = at unmount
+  // }
+
+  // const [prop, setProp] = useState({defaultPropState})
+
+  // TODO - rework and split to methods
+  private onSearchSymbol(event: ChangeEvent<HTMLInputElement>): void {
+    const searchedSymbol = event.target.value;
+    this.searchSymbolCallback(searchedSymbol)
+  }
+
+  private searchSymbolCallback = async (searchedSymbol: string) => {
+    this.setState({ searchedSymbol });
+
+    if (searchedSymbol.length >= 2) {
+      let response;
+      try {
+        response = await this.state.stockApiManager?.searchSymbol(searchedSymbol);
+      }
+      catch (e) {
+        console.error(e);
+      }
+
+      this.setSymbolDropdown(response);
+    }
+
+    this.resetSymbolChoices(searchedSymbol);
+  }
+
+  private setSymbolDropdown = (response: AxiosResponse<any> | undefined) => {
+    const searchMatches = response?.data as IAlphaVantageSymbolSearchResponse;
+    const symbols = this.state.stockApiManager.extractSymbols(searchMatches);
+    console.log({ symbols })
+    if (symbols.length > 0) {
+      const symbolDropdownList = this.state.dropdownMapperService.mapToSymbolDropdowns(symbols);
+      this.setState({
+        symbolOptions: symbolDropdownList,
+        noSymbolsFound: false,
+      });
+    } else {
+      this.setState({
+        noSymbolsFound: true,
+        symbolOptions: []
+      });
+    }
+  }
+
+  private resetSymbolChoices = (searchedSymbol: string) => {
+    if (searchedSymbol.length === 0) {
+      this.setState({
+        noSymbolsFound: false,
+        searchedSymbol: "",
+        symbolOptions: [],
+      });
+    }
+  }
+
+  private handleSelectSymbol(event: ChangeEvent<{ name?: string; value: unknown }>): void {
+    const selectedOption = event.target.value;
+    const newTypeSelected = this.state.symbolOptions.find(
+      (symbolOption: IDropdown) => symbolOption.id === selectedOption
+    );
+    const timeSeriesTypeOptions = this.state.dropdownMapperService.mapToTimeSeriesTypeDropdown();
+    const stockDetailTypeOptions = this.state.dropdownMapperService.mapToStockDetailTypeDropdown();
+    const defaultDropdown = this.state.dropdownMapperService.createDefaultDropdown();
+
+    this.setState({
+      symbolSelected: newTypeSelected,
+      timeSeriesTypeOptions: timeSeriesTypeOptions,
+      stockDetailTypeOptions: stockDetailTypeOptions,
+      stockDetailTypeSelected: defaultDropdown,
+      timeSeriesTypeSelected: defaultDropdown,
+      showDatePickers: true,
+      showChart: false,
+    });
+  }
+
+  private handleSelectTimeSeriesType(event: ChangeEvent<{ name?: string; value: unknown }>): void {
+    const selectedOption = event.target.value as string;
+    const newTypeSelected = this.state.timeSeriesTypeOptions.find(
+      (timeSeriesType: IDropdown) => timeSeriesType.id === selectedOption
+    );
+
+    // TODO
+    const showChart =
+      selectedOption !== "" &&
+      selectedOption !== "NONE" &&
+      this.state.stockDetailTypeSelected.id !== "" &&
+      this.state.stockDetailTypeSelected.id !== "NONE";
+
+    this.setState(
+      {
+        ...this.state,
+        timeSeriesTypeSelected: newTypeSelected,
+        showChart: showChart,
+      }
+    );
+
+    this.updateStockDetail(selectedOption);
+  }
+
+  private handleSelectStockDetailType(event: ChangeEvent<{ name?: string; value: unknown }>): void {
+    const selectedOption = event.target.value;
+    const newTypeSelected = this.state.stockDetailTypeOptions.find(
+      (stockDetailType: IDropdown) => stockDetailType.id === selectedOption
+    );
+
+    // TODO
+    const showChart =
+      this.state.timeSeriesTypeSelected.id !== "" &&
+      this.state.timeSeriesTypeSelected.id !== "NONE" &&
+      selectedOption !== "NONE";
+
+    this.setState(
+      {
+        ...this.state,
+        stockDetailTypeSelected: newTypeSelected,
+        showChart: showChart,
+      }
+    );
+  }
+
+  private updateStockDetail(selectedOption: string) {
+    // if (selectedOption === TimeSeriesTypeKey.TIME_SERIES_MONTHLY) {
+    //   this.getStockDetails(TimeSeriesTypeKey.TIME_SERIES_MONTHLY);
+    //   return;
+    // }
+
+    // if (selectedOption === TimeSeriesTypeKey.TIME_SERIES_WEEKLY) {
+    //   this.getStockDetails(TimeSeriesTypeKey.TIME_SERIES_WEEKLY);
+    //   return;
+    // }
+
+    // TODO - a check for "NONE"; at the moment it gives error in snackbar
+
+    this.getStockDetails(TimeSeriesTypeKey[selectedOption as TimeSeriesTypeKey]);
+  }
+
+  private getStockDetails(timeSeriesType: TimeSeriesTypeKey) {
+    this.setState({ isLoading: true });
+    this.getStockDetailsCallback(timeSeriesType);
+  }
+
+  private getStockDetailsCallback = async (timeSeriesType: TimeSeriesTypeKey) => {
+    const { startDate, endDate, stockApiManager } = this.state;
+
+    let response;
+    try {
+      response = await stockApiManager?.getStockDetails(this.state.symbolSelected.id, timeSeriesType);
+    }
+    catch (e) {
+      this.setState({
+        ...this.state,
+        errorMessage: e,
+        isLoading: false,
+      });
+    }
+
+
+    if (response?.status !== 200) return;
+
+    if (Object.keys(response?.data).includes("Error Message")) {
+      this.resetDropdownsWhenApiLimitReached(response);
+      return;
+    }
+
+    const timeSeriesStockResponse = response?.data as ITimeSeriesStockResponse;
+    const timeFrame: ITimeFrame = {
+      startDate,
+      endDate
+    };
+
+    const stocksData: IStockTimeSeriesData = stockApiManager.extractStockDetails(
+      timeSeriesStockResponse,
+      timeFrame
+    );
+
+    this.setState({
+      stocks: stocksData.stockDetails,
+      metadata: stocksData.metadata,
+      isLoading: false,
+    });
+  }
+
+  private resetDropdownsWhenApiLimitReached = (response: AxiosResponse<any> | undefined) => {
+    const defaultDropdown = this.state.dropdownMapperService.createDefaultDropdown();
+
+    this.setState({
+      errorMessage: response?.data["Error Message"],
+      isLoading: false,
+      symbolSelected: defaultDropdown,
+      timeSeriesTypeSelected: defaultDropdown,
+      stockDetailTypeSelected: defaultDropdown,
+      timeSeriesTypeOptions: [],
+      stockDetailTypeOptions: [],
+      showChart: false,
+      showDatePickers: false,
+    });
   }
 
   public render() {
+    // console.log(this.state);
     return (
       <div className="stock-container">
         {this.state.stocks.length > 0 && this.state.symbolSelected.id !== "" && (
@@ -215,12 +451,12 @@ export default class StocksContainer extends Component {
               <DatePicker
                 label="From"
                 value={this.state.startDate}
-                onChange={(event) => this.handleChangeDateFrom(event)}
+                onChange={(event) => this.handleChangeDate(event, 'startDate')}
               />
               <DatePicker
                 label="Until"
                 value={this.state.endDate}
-                onChange={(event) => this.handleChangeDateUntil(event)}
+                onChange={(event) => this.handleChangeDate(event, 'endDate')}
               />
             </div>
           )}
@@ -243,230 +479,5 @@ export default class StocksContainer extends Component {
         </div>
       </div>
     );
-  }
-
-  private onClickDetailsButton(): void {
-    if (this.state.isOpenedDetailsButton === false) {
-      this.setState({ ...this.state, detailsButtonStateLabel: "Close Details", isOpenedDetailsButton: true });
-      return;
-    }
-
-    if (this.state.isOpenedDetailsButton === true) {
-      this.setState({ ...this.state, detailsButtonStateLabel: "Open Details", isOpenedDetailsButton: false });
-      return;
-    }
-  }
-
-  private filterStocksOnDate(): void {
-    const filteredStocks = this.state.stockApiManager.filterStocksOnDate({
-      startDate: this.state.startDate,
-      endDate: this.state.endDate,
-    } as ITimeFrame);
-
-    this.setState({ ...this.state, stocks: filteredStocks });
-  }
-
-  private handleChangeDateFrom(event: ChangeEvent<HTMLInputElement>) {
-    const dateString = event.target.value;
-    this.setState({ ...this.state, startDate: dateString }, () => this.filterStocksOnDate());
-  }
-
-  private handleChangeDateUntil(event: ChangeEvent<HTMLInputElement>) {
-    const dateString = event.target.value;
-
-    this.setState({ ...this.state, endDate: dateString }, () => this.filterStocksOnDate());
-  }
-
-  // TODO - rework and split to methods
-  private onSearchSymbol(event: ChangeEvent<HTMLInputElement>): void {
-    const searchedSymbol = event.target.value;
-    const defaultDropdown = this.state.dropdownMapperService.createDefaultDropdown();
-
-    this.setState(
-      {
-        ...this.state,
-        searchedSymbol: searchedSymbol,
-        symbolSelected: defaultDropdown,
-        timeSeriesTypeSelected: defaultDropdown,
-        stockDetailTypeSelected: defaultDropdown,
-        // symbolOptions: [],
-        timeSeriesTypeOptions: [],
-        stockDetailTypeOptions: [],
-        showDatePickers: false,
-        showChart: false,
-      },
-      () => {
-        if (searchedSymbol.length >= 2) {
-          this.state.stockApiManager
-            ?.searchSymbol(searchedSymbol)
-            .then((response: AxiosResponse<any>) => {
-              const searchMatches = response?.data as IAlphaVantageSymbolSearchResponse;
-              const symbols = this.state.stockApiManager.extractSymbols(searchMatches);
-
-              if (symbols.length > 0) {
-                const symbolDropdownList = this.state.dropdownMapperService.mapToSymbolDropdowns(symbols);
-                this.setState({
-                  ...this.state,
-                  symbolOptions: symbolDropdownList,
-                  noSymbolsFound: false,
-                });
-              } else {
-                this.setState({
-                  ...this.state,
-                  noSymbolsFound: true,
-                });
-              }
-            })
-            .catch((e) => console.error(e));
-        }
-
-        // resetted - TODO - check if needed but i don't think so because we did reset in the previous step
-        if (searchedSymbol.length === 0) {
-          this.setState({
-            ...this.state,
-            noSymbolsFound: false,
-            searchedSymbol: "",
-            symbolOptions: [],
-          });
-        }
-      }
-    );
-  }
-
-  private handleSelectSymbol(event: ChangeEvent<{ name?: string; value: unknown }>): void {
-    const selectedOption = event.target.value;
-    const newTypeSelected = this.state.symbolOptions.find(
-      (symbolOption: IDropdown) => symbolOption.id === selectedOption
-    );
-    const timeSeriesTypeOptions = this.state.dropdownMapperService.mapToTimeSeriesTypeDropdown();
-    const stockDetailTypeOptions = this.state.dropdownMapperService.mapToStockDetailTypeDropdown();
-    const defaultDropdown = this.state.dropdownMapperService.createDefaultDropdown();
-
-    this.setState({
-      ...this.state,
-      symbolSelected: newTypeSelected,
-      timeSeriesTypeOptions: timeSeriesTypeOptions,
-      stockDetailTypeOptions: stockDetailTypeOptions,
-      stockDetailTypeSelected: defaultDropdown,
-      timeSeriesTypeSelected: defaultDropdown,
-      showDatePickers: true,
-      showChart: false,
-    });
-  }
-
-  private handleSelectTimeSeriesType(event: ChangeEvent<{ name?: string; value: unknown }>): void {
-    const selectedOption = event.target.value as string;
-    const newTypeSelected = this.state.timeSeriesTypeOptions.find(
-      (timeSeriesType: IDropdown) => timeSeriesType.id === selectedOption
-    );
-
-    // TODO
-    const showChart =
-      selectedOption !== "" &&
-      selectedOption !== "NONE" &&
-      this.state.stockDetailTypeSelected.id !== "" &&
-      this.state.stockDetailTypeSelected.id !== "NONE";
-
-    this.setState(
-      {
-        ...this.state,
-        timeSeriesTypeSelected: newTypeSelected,
-        showChart: showChart,
-      },
-      () => {
-        this.updateStockDetail(selectedOption);
-      }
-    );
-  }
-
-  private handleSelectStockDetailType(event: ChangeEvent<{ name?: string; value: unknown }>): void {
-    const selectedOption = event.target.value;
-    const newTypeSelected = this.state.stockDetailTypeOptions.find(
-      (stockDetailType: IDropdown) => stockDetailType.id === selectedOption
-    );
-
-    // TODO
-    const showChart =
-      this.state.timeSeriesTypeSelected.id !== "" &&
-      this.state.timeSeriesTypeSelected.id !== "NONE" &&
-      selectedOption !== "NONE";
-
-    this.setState(
-      {
-        ...this.state,
-        stockDetailTypeSelected: newTypeSelected,
-        showChart: showChart,
-      },
-      () => console.log(this.state)
-    );
-  }
-
-  private updateStockDetail(selectedOption: string) {
-    if (selectedOption === TimeSeriesTypeKey.TIME_SERIES_MONTHLY) {
-      this.getStockDetails(TimeSeriesTypeKey.TIME_SERIES_MONTHLY);
-      return;
-    }
-
-    if (selectedOption === TimeSeriesTypeKey.TIME_SERIES_WEEKLY) {
-      this.getStockDetails(TimeSeriesTypeKey.TIME_SERIES_WEEKLY);
-      return;
-    }
-  }
-
-  private getStockDetails(timeSeriesType: TimeSeriesTypeKey) {
-    this.setState({ ...this.state, isLoading: true }, () => {
-      const defaultDropdown = this.state.dropdownMapperService.createDefaultDropdown();
-
-      this.state.stockApiManager
-        ?.getStockDetails(this.state.symbolSelected.id, timeSeriesType)
-        .then((val: AxiosResponse) => {
-          console.log({ val });
-          if (val.status === 200) {
-            if (Object.keys(val.data).includes("Error Message")) {
-              this.setState({
-                ...this.state,
-                errorMessage: val.data["Error Message"],
-                isLoading: false,
-                symbolSelected: defaultDropdown,
-                timeSeriesTypeSelected: defaultDropdown,
-                stockDetailTypeSelected: defaultDropdown,
-                timeSeriesTypeOptions: [],
-                stockDetailTypeOptions: [],
-                showChart: false,
-                showDatePickers: false,
-              });
-              return;
-            }
-
-            const timeSeriesStockResponse = val.data as ITimeSeriesStockResponse;
-            const timeFrame: ITimeFrame = {
-              startDate: this.state.startDate,
-              endDate: this.state.endDate,
-            };
-            console.log({ timeSeriesStockResponse });
-
-            const stocksData: IStockTimeSeriesData = this.state.stockApiManager.extractStockDetails(
-              timeSeriesStockResponse,
-              timeFrame
-            );
-
-            console.log({ stocksData });
-
-            this.setState({
-              ...this.state,
-              stocks: stocksData.stockDetails,
-              metadata: stocksData.metadata,
-              isLoading: false,
-            });
-          }
-        })
-        .catch((error) => {
-          this.setState({
-            ...this.state,
-            errorMessage: error,
-            isLoading: false,
-          });
-        });
-    });
   }
 }
